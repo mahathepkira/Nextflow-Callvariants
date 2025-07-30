@@ -12,9 +12,13 @@
 
 ## 1. บทนำ
 nextflow-vep เป็น bioinformatics pipline ที่พัฒนาขึ้นสำหรับการทำ Variants Calling โดยจะมีขั้นตอนดังต่อไปนี้ 
-1. การทำ Variant Annotations (ANN_VEP)
-2. การเปรียบเทียบข้อมูล Variant ที่ซ้ำกับข้อมูล Variant ที่มีอยู่ (Comapare_VCF) 
-3. การดึงข้อมูล Variant Annotations ที่ซ้ำกับข้อมูล Variant ที่มีอยู่ (Call_ANN)
-4. การรวมไฟล์ (Combine_VCF)
+1. Quality Control
+2. Sequence Alignment 
+   2.1 Quality Mapped
+3.Mark Duplicates
+4.Base Recalibrate
+5.Variants Calling
+  5.1 VCF stats
+6. Convert VCF to BED,BIM,FAM and hmp
 
    
