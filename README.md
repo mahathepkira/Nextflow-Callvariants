@@ -25,3 +25,29 @@ nextflow-vep เป็น bioinformatics pipline ที่พัฒนาขึ�
 
 ## 4. รายละเอียดขั้นตอนใน-nextflow-Callvariants
 ### VCF stats
+```bash
+process VCFtools_stats {
+
+  tag { "${vcf}" }
+
+  publishDir "${outputPrefixPath(params, task)}"
+//  publishDir "${s3OutputPrefixPath(params, task)}"
+
+  input:
+  file(vcf)
+
+  output:
+  file("*.frq")
+  file("*.lmiss")
+  file("*.TsTv.summary")
+  file("*.summary")
+  script:
+  prefix=vcf
+
+  """
+  bash /nbt_main/home/lattapol/nextflow-Callvariants/bin/quality.sh ${vcf}
+  """
+}
+```
+
+
