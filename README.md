@@ -23,5 +23,5 @@ nextflow-vep เป็น bioinformatics pipline ที่พัฒนาขึ�
 
 ![ภาพ nextflow](Nextflow-Callvariants.drawio.png)
 
-## 4. รายละเอียดขั้นตอนใน nextflow-vep
-### การทำ Variant Annotations	(ANN_VEP)
+## 4. รายละเอียดขั้นตอนใน-nextflow-Callvariants
+### VCF stats
