@@ -73,4 +73,11 @@ zcat "$vcf" | vcf-annotate --fill-type | grep -oP "TYPE=\\w+" | sort | uniq -c >
 
 echo "===== finished ====="
 ```
+## 6. Output
+### ตัวอย่างผลลัพธ์จาก {samples}.frq
+### ตัวอย่างผลลัพธ์จาก {samples}.lmiss
+### ตัวอย่างผลลัพธ์จาก {samples}.TstV.summary
+### ตัวอย่างผลลัพธ์จาก {samples}.summary
+
+
 
