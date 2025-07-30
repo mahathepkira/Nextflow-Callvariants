@@ -21,4 +21,4 @@ nextflow-vep เป็น bioinformatics pipline ที่พัฒนาขึ�
 7. VCF stats
 8. Convert VCF to BED,BIM,FAM and hmp
 
-![ภาพ nextflow](nextflow-Callvariants.drawio.png)
+![ภาพ nextflow](Nextflow-Callvariants.drawio.png)
