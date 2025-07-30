@@ -104,10 +104,6 @@ echo "===== finished ====="
 import pandas as pd
 import numpy as np
 import argparse
-#import matplotlib.pyplot as plt
-
-
-
 
 def main(input_file):
 
@@ -129,16 +125,7 @@ def main(input_file):
 
     output_file = input_file.replace('.frq', '_allele_frequency.csv')
     table.to_csv(output_file, index=False)
-    """
-    plt.figure(figsize=(10, 6))
-    plt.bar(table['AF_Range'], table['Log10_Count'], color='blue', alpha=0.7)
-    plt.xlabel('Allele Frequency Range')
-    plt.ylabel('Log10_Count')
-    plt.title('Histogram of Allele Frequency')
-    plt.xticks(rotation=45)
-    plt.tight_layout()
-    plt.savefig('allele_frequency_histogram.png', dpi=300)
-    """
+
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(description="Process allele frequency file.")
     parser.add_argument('input_file', help="Input .frq file containing allele frequencies")
