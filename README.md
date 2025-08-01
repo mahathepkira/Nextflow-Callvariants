@@ -11,7 +11,7 @@
 ---
 
 ## 1. บทนำ
-nextflow-vep เป็น bioinformatics pipline ที่พัฒนาขึ้นสำหรับการทำ Variants Calling โดยจะมีขั้นตอนดังต่อไปนี้ 
+Nextflow-Callvariants เป็น bioinformatics pipline ที่พัฒนาขึ้นสำหรับการทำ Variants Calling โดยจะมีขั้นตอนดังต่อไปนี้ 
 1. Quality Control
 2. Sequence Alignment
 3. Quality Mapped
