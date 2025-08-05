@@ -1,0 +1,135 @@
+{
+  "namespace": "nstda.nbt.gwas.rice.call.variant",
+  "name": "value",
+  "type": "record",
+  "__WORKFLOW_HOME_PATH_BY_ENVIRONMENT": {
+    "standard": "/tarafs/biobank/data/share/pachyderm",
+    "tara": "/tarafs/biobank/data/share/pachyderm",
+    "colossus": "/colossus/home/krittin/share/pachyderm",
+    "nbt": "/nbt_data/share/pachyderm"
+  },
+  "fields": [
+    {
+      "name": "input",
+      "doc": "Input Directory to *.(fasta|fa)",
+      "type": [
+        "string", 
+        {
+          "name": "inputEnumType",
+          "type": "enum",
+          "symbols": ["test1", "test2"],
+          "default": "test1"
+        }
+      ],
+      "default": "test1",
+      "__type": "dir",
+      "__required": true,
+      "__private": false,
+      "__need_resolve": {
+        "input": "__PATH_BY_DATASET"
+      },
+      "__PATH_BY_DATASET": {
+        "test1":"/tarafs/biobank/data/home/mboonban/riceGVCF/resources/raw_data"
+      }
+    },
+    {
+      "name": "reference",
+      "doc": "Reference path.",
+      "type": {
+        "type": "enum",
+        "name": "referenceEnumType",
+        "symbols": ["ref_fasta_ja", "ref_fasta_in", "ref_fasta_cassava"],
+        "default": "ref_fasta_ja"
+      },
+      "default": "ref_fasta_ja",
+      "__required": true,
+      "__private": false,
+      "__type": "path",
+      "__need_resolve": {
+        "reference": "__REFERENCE_BY_REFERENCE",
+        "knownsite": "__KNOWNSITE_BY_REFERENCE"
+      },
+      "__REFERENCE_BY_REFERENCE": {
+        "ref_fasta_ja": "/nbt_data/share/pachyderm/gwas-rice/referenceRice/Japonica_Ref_release_40/Oryza_sativa.IRGSP-1.0.dna_sm.chromosome.all_chr.fa",
+        "ref_fasta_in": "/nbt_data/share/pachyderm/gwas-rice/referenceRice/Indica_Ref_release_40/Oryza_indica.ASM465v1.dna_sm.chromosome.all_chr.fa",
+        "ref_fasta_cassava": "/nbt_main/home/lattapol/mycassava/reference/Mesculenta_305_v6.fa"
+      },
+      "__KNOWNSITE_BY_REFERENCE": {
+        "ref_fasta_ja": "/nbt_data/share/pachyderm/gwas-rice/referenceRice/Japonica_Ref_release_40/oryza_sativa.vcf.gz",
+        "ref_fasta_in": "/nbt_data/share/pachyderm/gwas-rice/referenceRice/Indica_Ref_release_40/oryza_indica.vcf.gz",
+        "ref_fasta_cassava": "/nbt_main/home/lattapol/mycassava/reference/Mesculenta_305.vcf.gz"
+      }
+    },
+    {
+      "name": "exampleEnum",
+      "doc": "Example Enum parameter with resolve...",
+      "type": [
+        "null",
+        "string",
+        {
+          "name": "exampleEnumType",
+          "type": "enum",
+          "symbols": ["myEnum1", "myEnum2"],
+          "default": "myEnum1"
+        }
+      ],
+      "default": "myEnum1",
+      "__need_resolve": {
+        "exampleEnumPath": "__EXAMPLE_ENUM_PATH_BY_ENUM_VALUE" }, "__EXAMPLE_ENUM_PATH_BY_ENUM_VALUE": {
+        "myEnum1": "env://nxt-template/refs/ref1.fa",
+        "myEnum2": "env://nxt-template/refs/ref2.fa"
+      },
+      "__type": "path",
+      "__required": false,
+      "__private": false
+    },
+    {
+      "name": "paramsPath",
+      "type": ["null", "string"],
+      "doc": "Params Path",
+      "default": null,
+      "__type": "path",
+      "__required": false,
+      "__private": true
+    },
+    {
+      "name": "output",
+      "type": "string",
+      "doc": "Output Dir Path",
+      "default": "launchDir://",
+      "__type": "dir",
+      "__required": false,
+      "__private": true
+    },
+    {
+      "name": "enableS3",
+      "type": "boolean",
+      "doc": "enable publish data to S3",
+      "default": false,
+      "__required": false,
+      "__private": true
+    },
+    {
+      "name": "s3input",
+      "type": ["null", 
+        {
+          "type": "array",
+          "items": "string"
+        }
+      ],
+      "doc": "Array of S3 Input path for production use only...",
+      "default": null,
+      "__required": false,
+      "__private": true
+    },
+    {
+      "name": "s3output",
+      "type": ["null", "string"],
+      "doc": "S3 Output Dir Path",
+      "default": null,
+      "__type": "dir",
+      "__required": false,
+      "__private": true
+    }
+  ]
+}
