@@ -39,6 +39,83 @@ Nextflow-Callvariants เป็น bioinformatics pipline ที่พัฒน�
 ### การเตรียม Config
 ผู้ใช้งานสามารปรับแต่งเครื่องมือที่ใช้งานในไฟล์ gb.config ให้เหมาะสมกับทรัพยากรในเครื่อง โดย gb.config จะทำงานรวมกับ nextflow.config โดยจะใช้ตัวเลือก `-profile` เพื่อเลือก config ที่จะใช้งาน
 ```bash
+process {
+  executor = 'slurm'
+  queue = 'memory'
+  cache = 'lenient'
+
+  withName: Trimmmomatic {
+    module = 'Trimmomatic/0.38-Java-1.8'
+    cpus = 8
+    memory = '64 GB'
+  }
+
+  withName: FastQC {
+    module = 'FastQC/0.11.9-Java-11'
+    cpus = 8
+    memory = '64 GB'
+  }
+
+  withName: Alignment_bwa {
+    module = 'BWA/0.7.17-GCCcore-11.2.0:SAMtools/1.18-GCC-12.3.0:picard/2.25.1-Java-11:'
+    cpus = 8
+    memory = '64 GB'
+  }
+
+  withName: Mark_duplicates {
+  module = 'Java/11.0.16:picard/2.25.1-Java-11'
+  cpus = 4
+  memory = '32 GB'
+  }
+
+  withName: Base_recalibrator {
+  module = 'GATK/4.5.0-java-17'
+  cpus = 8
+  memory = '64 GB'
+  }
+
+  withName: Call_GVCF {
+  module = 'GATK/4.5.0-java-17:HTSlib/1.19.1-GCC-12.3.0'
+  cpus = 10
+  memory = '96 GB'
+  }
+
+  withName: Combine_GVCF {
+  module = 'GATK/3.8-1-Java-1.8.0_144:picard/2.18.27-Java-1.8.0_201:HTSlib/1.9-foss-2018b'
+  cpus = 12
+  memory = '800 GB'
+  }
+
+  withName: VcftoBed {
+  module = 'BCFtools/1.17-GCC-12.2.0:PLINK/1.9b_4.1-x86_64:TASSEL/5.2.59'
+  cpus = 16
+  memory = '32 GB'
+  }
+
+  withName: Qualimap {
+  container = '/nbt_main/share/singularity/qualimap:2.3--hdfd78af_0'
+  cpus = 4
+  memory = '32 GB'
+  }
+
+  withName: VCFtools_stats {
+  module = 'VCFtools/0.1.16-GCC-11.3.0'
+  cpus = 8
+  memory = '16 GB'
+  }
+
+  withName: BCFtools_stats {
+  module = 'BCFtools/1.17-GCC-12.2.0'
+  cpus = 8
+  memory = '16 GB'
+  }
+
+  withName: Histogram {
+  module = 'Python/3.10.4-GCCcore-11.3.0'
+  cpus = 8
+  memory = '16 GB'
+  }
+}
 
 ```
  
