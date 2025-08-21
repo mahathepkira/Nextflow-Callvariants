@@ -34,8 +34,6 @@ nextflow run main.nf -profile gb --input data --outdir results
 - `--build` = build genome มีผลกับชื่อ output (จำเป็น:ค่าเริ่มต้น:“GRCh38”)
 - `--input` = โฟลเดอร์ input (จำเป็น:ค่าเริ่มต้น:data)
 - `--outdir` = โฟล์เดอร์ output (จำเป็น:ค่าเริ่มต้น:output)
-- `--vep_config` = เส้นทาง VEP_GRCh38.ini (จำเป็น:ค่าเริ่มต้น:bin/VEP_GRCh38.ini)
-- `--vcf_compare` = เส้นทางไฟล์ VCF ในการเปรียบเทียบในขั้นตอน Comapare_VCF (ไม่จำเป็น)
 - `-profile`  = เลือกไฟล์ config ในการรัน Nextflow
 
 
@@ -257,7 +255,7 @@ process Sort_bam {
   prefix=samview.simpleName
 
   """
-   java -XX:ParallelGCThreads=8 -jar \$EBROOTPICARD/picard.jar SortSam I=${samview} O=${prefix}.aln.sorted.bam SORT_ORDER=coordinate
+  java -XX:ParallelGCThreads=8 -jar \$EBROOTPICARD/picard.jar SortSam I=${samview} O=${prefix}.aln.sorted.bam SORT_ORDER=coordinate
   """
 }
 ```
