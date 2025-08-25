@@ -42,13 +42,14 @@ nextflow run main.nf -profile gb --input data --reference <name-species> --outdi
 Nextflow: version 24
 1. Quality Control
    FastQC
-   Trimmoatric
+   Trimmomatric
 3. Sequence Alignment
-4. Quality Mapped: VEP version 113
-5. Mark Duplicates: BCFTools version 1.17
-6. Variants Calling
-7. VCF stats
-8. Convert VCF to BED,BIM,FAM and hmp
+   BWA
+5. Quality Mapped: VEP version 113
+6. Mark Duplicates: BCFTools version 1.17
+7. Variants Calling
+8. VCF stats
+9. Convert VCF to BED,BIM,FAM and hmp
 
 ### การเตรียม Config
 ผู้ใช้งานสามารปรับแต่งเครื่องมือที่ใช้งานในไฟล์ gb.config ให้เหมาะสมกับทรัพยากรในเครื่อง โดย gb.config จะทำงานรวมกับ nextflow.config โดยจะใช้ตัวเลือก `-profile` เพื่อเลือก config ที่จะใช้งาน
