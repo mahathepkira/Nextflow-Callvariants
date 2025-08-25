@@ -44,12 +44,14 @@ Nextflow: version 24
    - FastQC
    - Trimmomatric
 3. Sequence Alignment
-   BWA
-5. Quality Mapped: VEP version 113
-6. Mark Duplicates: BCFTools version 1.17
-7. Variants Calling
-8. VCF stats
-9. Convert VCF to BED,BIM,FAM and hmp
+   - BWA
+5. Quality Mapped
+   - Qualimap
+7. Mark Duplicates
+   - BWA
+9. Variants Calling
+10. VCF stats
+11. Convert VCF to BED,BIM,FAM and hmp
 
 ### การเตรียม Config
 ผู้ใช้งานสามารปรับแต่งเครื่องมือที่ใช้งานในไฟล์ gb.config ให้เหมาะสมกับทรัพยากรในเครื่อง โดย gb.config จะทำงานรวมกับ nextflow.config โดยจะใช้ตัวเลือก `-profile` เพื่อเลือก config ที่จะใช้งาน
