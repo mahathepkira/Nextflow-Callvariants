@@ -54,10 +54,13 @@ Nextflow: version 24
    - GATK
 6. Variants Calling
    - GATK
+   - htsib
 7. VCF stats
-   - VCFTools
+   - VCFtools
+   - BCFtools
 8. Convert VCF to BED,BIM,FAM and hmp
    - PLINK
+   - BCFtools
    - TASSEL
 
 ### การเตรียม Config
