@@ -41,8 +41,8 @@ nextflow run main.nf -profile gb --input data --reference <name-species> --outdi
 ### เครืองมือ 
 Nextflow: version 24
 1. Quality Control
-   FastQC
-   Trimmomatric
+   - FastQC
+   - Trimmomatric
 3. Sequence Alignment
    BWA
 5. Quality Mapped: VEP version 113
