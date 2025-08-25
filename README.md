@@ -37,23 +37,28 @@ nextflow run main.nf -profile gb --input data --reference <name-species> --outdi
 - `-profile`  = เลือกไฟล์ config ในการรัน Nextflow
 
 
-## 3. การเตรียมเครื่องมือและข้อมูลสำหรับ nextflow-vep
+## 3. การเตรียมเครื่องมือและข้อมูลสำหรับ nextflow-
 ### เครืองมือ 
 Nextflow: version 24
 1. Quality Control
    - FastQC
    - Trimmomatric
-3. Sequence Alignment
+2. Sequence Alignment
    - BWA
    - samtools
-5. Quality Mapped
+3. Quality Mapped
    - Qualimap
-7. Mark Duplicates
+4. Mark Duplicates
    - Picard
-9. Variants Calling
-   - 
-11. VCF stats
-12. Convert VCF to BED,BIM,FAM and hmp
+5. Base Recalibrate
+   - GATK
+6. Variants Calling
+   - GATK
+7. VCF stats
+   - VCFTools
+8. Convert VCF to BED,BIM,FAM and hmp
+   - PLINK
+   - TASSEL
 
 ### การเตรียม Config
 ผู้ใช้งานสามารปรับแต่งเครื่องมือที่ใช้งานในไฟล์ gb.config ให้เหมาะสมกับทรัพยากรในเครื่อง โดย gb.config จะทำงานรวมกับ nextflow.config โดยจะใช้ตัวเลือก `-profile` เพื่อเลือก config ที่จะใช้งาน
