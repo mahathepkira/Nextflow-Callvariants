@@ -51,8 +51,9 @@ Nextflow: version 24
 7. Mark Duplicates
    - Picard
 9. Variants Calling
-10. VCF stats
-11. Convert VCF to BED,BIM,FAM and hmp
+   - 
+11. VCF stats
+12. Convert VCF to BED,BIM,FAM and hmp
 
 ### การเตรียม Config
 ผู้ใช้งานสามารปรับแต่งเครื่องมือที่ใช้งานในไฟล์ gb.config ให้เหมาะสมกับทรัพยากรในเครื่อง โดย gb.config จะทำงานรวมกับ nextflow.config โดยจะใช้ตัวเลือก `-profile` เพื่อเลือก config ที่จะใช้งาน
