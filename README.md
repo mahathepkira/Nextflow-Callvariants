@@ -45,10 +45,11 @@ Nextflow: version 24
    - Trimmomatric
 3. Sequence Alignment
    - BWA
+   - samtools
 5. Quality Mapped
    - Qualimap
 7. Mark Duplicates
-   - BWA
+   - Picard
 9. Variants Calling
 10. VCF stats
 11. Convert VCF to BED,BIM,FAM and hmp
