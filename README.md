@@ -39,8 +39,10 @@ nextflow run main.nf -profile gb --input data --reference <name-species> --outdi
 
 ## 3. การเตรียมเครื่องมือและข้อมูลสำหรับ nextflow-vep
 ### เครืองมือ 
-1. Nextflow: version 24
-2. Quality Control
+Nextflow: version 24
+1. Quality Control
+   FastQC
+   Trimmoatric
 3. Sequence Alignment
 4. Quality Mapped: VEP version 113
 5. Mark Duplicates: BCFTools version 1.17
