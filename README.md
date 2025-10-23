@@ -5,7 +5,7 @@
 2. [การใช้งาน nextflow-Callvariants](#2-การใช้งาน-nextflow-Callvariants)
 3. [การเตรียมเครื่องมือและข้อมูลสำหรับ nextflow-Callvariants](#3-การเตรียมเครื่องมือและข้อมูลสำหรับ-nextflow-Callvariants)
 4. [รายละเอียดขั้นตอนใน nextflow-Callvariants](#4-รายละเอียดขั้นตอนใน-nextflow-Callvariants)
-5. [Output](#6-Output)
+5. [Output](#5-Output)
 
 ---
 
@@ -556,7 +556,50 @@ if __name__ == "__main__":
     args = parser.parse_args()
     main(args.input_file)
 ```
-## 6. Output
+## 5. Output
+### ภาพรวม Output
+```bash
+Annotations
+└── ANN_snpEff
+     ├── {samples}.ann.vcf.gz 
+     ├── {samples}_summary.genes.txt       
+     └── {samples}_summary.html
+```
+
+```bash
+Annotations_custom
+├── BuildCustomDB
+│    ├──snpeff_build.log
+└── ANN_snpEff
+     ├── {samples}.ann.vcf.gz 
+     ├── {samples}_summary.genes.txt       
+     └── {samples}_summary.html
+```
+
+```bash
+Annotations
+├── ANN_SnpSift
+│    ├──{samples}_SnpSift.vcf.gz
+└── ANN_snpEff
+     ├── {samples}.ann.vcf.gz 
+     ├── {samples}_summary.genes.txt       
+     └── {samples}_summary.html
+```
+
+```bash
+Annotations
+├── Call_ANN
+│    ├── {samples}_overlap_shared.vcf.gz
+├── Combine_VCF
+│    ├── {samples}_combine.vcf.gz
+├── Compare_results
+│    ├── {samples}_overlap.vcf.gz
+│    └── {samples}_unique.vcf.gz
+└── ANN_snpEff
+     ├── {samples}.ann.vcf.gz 
+     ├── {samples}_summary.genes.txt       
+     └── {samples}_summary.html
+```
 ### ตัวอย่างผลลัพธ์จาก {samples}.frq
 ```bash
 CHROM   POS     N_ALLELES       N_CHR   {ALLELE:FREQ}
