@@ -37,7 +37,7 @@ nextflow run main.nf -profile gb --input data --reference <name-species> --outdi
 - `-profile`  = เลือกไฟล์ config ในการรัน Nextflow
 
 
-## 3. การเตรียมเครื่องมือและข้อมูลสำหรับ nextflow-
+## 3. การเตรียมเครื่องมือและข้อมูลสำหรับ nextflow-Callvariants
 ### เครืองมือ 
 Nextflow: version 24
 1. Quality Control
@@ -147,7 +147,7 @@ process {
 ```
  
 ## 4. รายละเอียดขั้นตอนใน-nextflow-Callvariants
-## Trimmmomatic
+### Quality Control
 ```bash
 process Trimmmomatic {
 
@@ -177,7 +177,6 @@ process Trimmmomatic {
   """
 }
 ```
-## FastQC
 ```bash
 process FastQC {
 
@@ -201,6 +200,7 @@ process FastQC {
   """
 }
 ```
+### Sequence Alignment
 ## Alignment_bwa
 ```bash
 process Alignment_bwa {
@@ -325,6 +325,18 @@ process Base_recalibrator {
   """
 }
 ```
+
+### Quality Mapped
+### Mark Duplicates
+### Base Recalibrate
+### Variants Calling
+### VCF stats
+### Convert VCF to BED,BIM,FAM and hmp
+
+
+
+
+
 
 ## Call_GVCF
 ```bash
