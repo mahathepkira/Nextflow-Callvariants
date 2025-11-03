@@ -201,7 +201,6 @@ process FastQC {
 }
 ```
 ### Sequence Alignment
-## Alignment_bwa
 ```bash
 process Alignment_bwa {
 
@@ -229,7 +228,6 @@ process Alignment_bwa {
   """
 }
 ```
-## Sam_view 
 ```bash
 process Sam_view {
 
@@ -252,7 +250,6 @@ process Sam_view {
   """
 }
 ```
-## Sort_bam
 ```bash
 process Sort_bam {
 
@@ -274,8 +271,8 @@ process Sort_bam {
   """
 }
 ```
-
-## Mark_duplicates
+### Quality Mapped
+### Mark Duplicates
 ```bash
 process Mark_duplicates {
 
@@ -299,8 +296,7 @@ process Mark_duplicates {
   """
 }
 ```
-
-## Base_recalibrator
+### Base Recalibrate
 ```bash
 process Base_recalibrator {
 
@@ -325,20 +321,7 @@ process Base_recalibrator {
   """
 }
 ```
-
-### Quality Mapped
-### Mark Duplicates
-### Base Recalibrate
 ### Variants Calling
-### VCF stats
-### Convert VCF to BED,BIM,FAM and hmp
-
-
-
-
-
-
-## Call_GVCF
 ```bash
 process Call_GVCF {
 
@@ -367,8 +350,6 @@ process Call_GVCF {
   """
 }
 ```
-
-## Combine_GVCF
 ```bash
 process Combine_GVCF {
 
@@ -394,35 +375,6 @@ process Combine_GVCF {
   java -Xmx500G -jar \$EBROOTGATK/GenomeAnalysisTK.jar -T GenotypeGVCFs -R ${params.reference} --dbsnp ${params.knownsite} -nt 12 --max_alternate_alleles 6 \$(cat all_gvcf.list | xargs -I {} echo "-V {}") -o all.snps.indels.vcf
 
   bgzip all.snps.indels.vcf
-  """
-}
-```
-
-## VcftoBed 
-```bash
-process VcftoBed {
-
-  tag { "${combine_gvcf}" }
-
-  publishDir "${outputPrefixPath(params, task)}"
- //  publishDir "${s3OutputPrefixPath(params, task)}"
-
-  input:
-  file(combine_gvcf)
-
-  output:
-  file("allsample.bed")
-  file("allsample.bim")
-  file("allsample.fam")
-  file("allsample.hmp.txt")
-  file("all.snps.indels_bi.vcf.gz")
-
-  script:
-
-  """
-  bcftools view -m2 -M2 -v snps ${combine_gvcf} -o all.snps.indels_bi.vcf.gz
-  plink --vcf all.snps.indels_bi.vcf.gz --make-bed --out allsample --double-id --allow-extra-chr
-  run_pipeline.pl -Xmx32G -vcf all.snps.indels_bi.vcf.gz -sortPositions -export allsample.hmp.txt -exportType Hapmap
   """
 }
 ```
@@ -567,6 +519,34 @@ if __name__ == "__main__":
     parser.add_argument('input_file', help="Input .lmiss file containing lmiss")
     args = parser.parse_args()
     main(args.input_file)
+```
+### Convert VCF to BED,BIM,FAM and hmp
+```bash
+process VcftoBed {
+
+  tag { "${combine_gvcf}" }
+
+  publishDir "${outputPrefixPath(params, task)}"
+ //  publishDir "${s3OutputPrefixPath(params, task)}"
+
+  input:
+  file(combine_gvcf)
+
+  output:
+  file("allsample.bed")
+  file("allsample.bim")
+  file("allsample.fam")
+  file("allsample.hmp.txt")
+  file("all.snps.indels_bi.vcf.gz")
+
+  script:
+
+  """
+  bcftools view -m2 -M2 -v snps ${combine_gvcf} -o all.snps.indels_bi.vcf.gz
+  plink --vcf all.snps.indels_bi.vcf.gz --make-bed --out allsample --double-id --allow-extra-chr
+  run_pipeline.pl -Xmx32G -vcf all.snps.indels_bi.vcf.gz -sortPositions -export allsample.hmp.txt -exportType Hapmap
+  """
+}
 ```
 ## 5. Output
 ### ภาพรวม Output
