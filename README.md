@@ -46,6 +46,7 @@ Nextflow: version 24
 2. Sequence Alignment
    - BWA version 0.7.17
    - samtools version 1.18
+   - Picard version 2.25.1
 3. Quality Mapped
    - Qualimap version 2.3
 4. Mark Duplicates
@@ -54,6 +55,7 @@ Nextflow: version 24
    - GATK version 4.5.0
 6. Variants Calling
    - GATK version 4.5.0
+   - GATK (version 3.8.1) 
    - htsib version 1.19.1
 7. VCF stats
    - VCFtools version 0.1.16
@@ -148,6 +150,7 @@ process {
  
 ## 4. รายละเอียดขั้นตอนใน-nextflow-Callvariants
 ### Quality Control
+เครื่องมือชีวสารสนเทศในการทำ Quality Control ได้แก่ Trimmomatric (version 0.38) สำหรับการปรับแต่งคุณภาพข้อมูล และใช้ FastQC (version 0.11.9) ในการแสดงผลข้อมูลก่อนและหลังปรับแต่งคุณภาพของข้อมูล
 ```bash
 process Trimmmomatic {
 
@@ -201,6 +204,7 @@ process FastQC {
 }
 ```
 ### Sequence Alignment
+เครื่องมือชีวสารสนเทศในการทำ Sequence Alignment ได้แก่ BWA (version 0.7.17) แล้วทำการแปลงไฟล์ sam เป็นไฟล์ bam ด้วย samtools (version 1.18) แล้วทำการจัดเรียงข้อมุลด้วย Picard (version 2.25.1)
 ```bash
 process Alignment_bwa {
 
@@ -228,51 +232,33 @@ process Alignment_bwa {
   """
 }
 ```
-```bash
-process Sam_view {
-
-  tag { "${fileId}" }
-
-  publishDir "${outputPrefixPath(params, task)}"
- //  publishDir "${s3OutputPrefixPath(params, task)}"
-
-  input:
-  tuple val(fileId), file(bwa_align)
-
-  output:
-  tuple val(fileId), file("${prefix}.aln.bam")
-
-  script:
-  prefix=bwa_align.simpleName
-
-  """
-  samtools view -bS -@ 12 -o ${prefix}.aln.bam ${bwa_align}
-  """
-}
-```
-```bash
-process Sort_bam {
-
-  tag { "${fileId}" }
-
-  publishDir "${outputPrefixPath(params, task)}"
-
-  input:
-  tuple val(fileId), file(samview)
-
-  output:
-  tuple val(fileId), file("${prefix}.aln.sorted.bam")
-
-  script:
-  prefix=samview.simpleName
-
-  """
-  java -XX:ParallelGCThreads=8 -jar \$EBROOTPICARD/picard.jar SortSam I=${samview} O=${prefix}.aln.sorted.bam SORT_ORDER=coordinate
-  """
-}
-```
 ### Quality Mapped
+เครื่องมือชีวสารสนเทศในการทำ Quality Mapped ได้แก่ Qualimap version 2.3 ในการตรวจสอบคุณภาพในการ Mapped จากขั้นตอน Sequence Alignment
+```bash
+process Qualimap {
+
+  tag { "${fileId}" }
+
+  publishDir "${outputPrefixPath(params, task)}"
+//  publishDir "${s3OutputPrefixPath(params, task)}"
+
+  input:
+  tuple val(fileId), file(bam)
+
+  output:
+  path "*"
+
+  script:
+  prefix=fileId
+
+  """
+  qualimap bamqc -bam ${bam} --java-mem-size=32G
+
+  """
+}
+```
 ### Mark Duplicates
+เครื่องมือชีวสารสนเทศในการทำ Mark Duplicates ได้แก่ Picard (version 2.25.1)
 ```bash
 process Mark_duplicates {
 
@@ -297,6 +283,7 @@ process Mark_duplicates {
 }
 ```
 ### Base Recalibrate
+เครื่องมือชีวสารสนเทศในการทำ Base Recalibrate ได้แก่ GATK (version 4.5.0)
 ```bash
 process Base_recalibrator {
 
@@ -322,6 +309,7 @@ process Base_recalibrator {
 }
 ```
 ### Variants Calling
+เครื่องมือชีวสารสนเทศในการทำ Variants Calling ได้แก่ GATK (version 4.5.0) ในการทำ HaplotypeCaller และใช้ GATK (version 3.8.1) ในการทำ GenotypeGVCFs สุดท้ายจึงใช้ htsib (version 1.19.1) ในการบีบอัดไฟล์
 ```bash
 process Call_GVCF {
 
@@ -521,6 +509,7 @@ if __name__ == "__main__":
     main(args.input_file)
 ```
 ### Convert VCF to BED,BIM,FAM and hmp
+เครื่องมือชีวสารสนเทศในการแปลงไฟล์ได้แก่ PLINK (version 1.9b), BCFtools (version 1.17) และTASSEL version 5.2.59
 ```bash
 process VcftoBed {
 
