@@ -509,7 +509,7 @@ if __name__ == "__main__":
     main(args.input_file)
 ```
 ### Convert VCF to BED,BIM,FAM and hmp
-เครื่องมือชีวสารสนเทศในการแปลงไฟล์ได้แก่ PLINK (version 1.9b), BCFtools (version 1.17) และTASSEL version 5.2.59
+เครื่องมือชีวสารสนเทศในการแปลงไฟล์ได้แก่ BCFtools (version 1.17) สำหรับกรอง snp ให้เป็น biallelic, PLINK (version 1.9b) สำหรับแปลงไฟล์เป็น bed,bim,fam และ TASSEL (version 5.2.59) สำหรับแปลงไฟล์เป็น hmp
 ```bash
 process VcftoBed {
 
