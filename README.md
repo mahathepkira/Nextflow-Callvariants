@@ -62,7 +62,7 @@ Nextflow: version 24
    - PLINK version 1.9b
    - BCFtools version 1.17
    - TASSEL version 5.2.59
-   - 
+     
 ### การเตรียม Config
 ผู้ใช้งานสามารปรับแต่งเครื่องมือที่ใช้งานในไฟล์ gb.config ให้เหมาะสมกับทรัพยากรในเครื่อง โดย gb.config จะทำงานรวมกับ nextflow.config โดยจะใช้ตัวเลือก `-profile` เพื่อเลือก config ที่จะใช้งาน
 ```bash
