@@ -41,28 +41,28 @@ nextflow run main.nf -profile gb --input data --reference <name-species> --outdi
 ### เครืองมือ 
 Nextflow: version 24
 1. Quality Control
-   - FastQC
-   - Trimmomatric
+   - FastQC version 0.11.9
+   - Trimmomatric version 0.38
 2. Sequence Alignment
-   - BWA
-   - samtools
+   - BWA version 0.7.17
+   - samtools version 1.18
 3. Quality Mapped
-   - Qualimap
+   - Qualimap version 2.3
 4. Mark Duplicates
-   - Picard
+   - Picard version 2.25.1
 5. Base Recalibrate
-   - GATK
+   - GATK version 4.5.0
 6. Variants Calling
-   - GATK
-   - htsib
+   - GATK version 4.5.0
+   - htsib version 1.19.1
 7. VCF stats
-   - VCFtools
-   - BCFtools
+   - VCFtools version 0.1.16
+   - BCFtools version 1.17
 8. Convert VCF to BED,BIM,FAM and hmp
-   - PLINK
-   - BCFtools
-   - TASSEL
-
+   - PLINK version 1.9b
+   - BCFtools version 1.17
+   - TASSEL version 5.2.59
+   - 
 ### การเตรียม Config
 ผู้ใช้งานสามารปรับแต่งเครื่องมือที่ใช้งานในไฟล์ gb.config ให้เหมาะสมกับทรัพยากรในเครื่อง โดย gb.config จะทำงานรวมกับ nextflow.config โดยจะใช้ตัวเลือก `-profile` เพื่อเลือก config ที่จะใช้งาน
 ```bash
