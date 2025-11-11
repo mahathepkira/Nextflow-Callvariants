@@ -604,16 +604,6 @@ Callvariantout
      ├── all.snps.indels.summary       
      └── all.snps.indels.TsTv.summary
 ```
-
-```bash
-Annotations_custom
-├── BuildCustomDB
-│    ├── snpeff_build.log
-└── ANN_snpEff
-     ├── {samples}.ann.vcf.gz 
-     ├── {samples}_summary.genes.txt       
-     └── {samples}_summary.html
-```
 ### ตัวอย่างผลลัพธ์จาก {samples}.frq
 ```bash
 CHROM   POS     N_ALLELES       N_CHR   {ALLELE:FREQ}
