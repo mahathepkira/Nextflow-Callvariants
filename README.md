@@ -540,42 +540,75 @@ process VcftoBed {
 ## 5. Output
 ### ภาพรวม Output
 ```bash
-Annotations
-└── ANN_snpEff
-     ├── {samples}.ann.vcf.gz 
-     ├── {samples}_summary.genes.txt       
-     └── {samples}_summary.html
+Callvariantout
+├── Alignment_bwa
+│    └── {samples}.aln.sorted.bam
+├── Base_recalibrator
+│    └── {samples}.recal.bam
+├── Call_GVCF
+│    ├── {samples}.snps.indels.g.vcf.gz
+│    └── {samples}.snps.indels.g.vcf.gz.tbi
+├── Combine_GVCF
+│    └── all.snps.indels.vcf.gz
+├── FastQC_after_trim
+│    ├── {samples}_R1_paired_fastqc.html
+│    ├── {samples}_R1_paired_fastqc.zip
+│    ├── {samples}_R2_paired_fastqc.html 
+│    └── {samples}_R2_paired_fastqc.zip
+├── FastQC_unpaired
+│    ├── {samples}_1_fastqc.html
+│    ├── {samples}_1_fastqc.zip
+│    ├── {samples}_2_fastqc.html 
+│    └── {samples}_2_fastqc.zip
+├── FastQC_after_trim
+│    ├── {samples}_R1_unpaired_fastqc.html
+│    ├── {samples}_R1_unpaired_fastqc.zip
+│    ├── {samples}_R2_unpaired_fastqc.html 
+│    └── {samples}_R2_unpaired_fastqc.zip
+├── FastQC_visualize
+│    └── fastqc_summary.csv
+├── Histogram_after
+│    ├── all.snps.indels_bi_allele_frequency.csv
+│    └── all.snps.indels_bi_lmiss_count.csv
+├── Histogram_before
+│    ├── all.snps.indels_allele_frequency.csv
+│    └── all.snps.indels_lmiss_count.csv
+├── Mark_duplicates
+│    ├── {samples}.aln.sorted.mrkDup.bam
+│    └── {samples}.dup_metrics.txt
+├── Qualimap_after
+│    └── {samples}.recal_stats
+├── Qualimap_before
+│    └── {samples}.aln.sorted_stats
+├── Qualimap_visualize
+│    └── qualimap_summary.csv
+├── Trimmmomatic
+│    ├── {samples}_R1_paired.fastq.gz
+│    ├── {samples}_R1_unpaired.fastq.gz
+│    ├── {samples}_R2_paired.fastq.gz  
+│    └── {samples}_R2_unpaired.fastq.gz
+├── VCFtoBed
+│    ├── all.snps.indels_bi.vcf.gz
+│    ├── allsample.bed
+│    ├── allsample.bim
+│    ├── allsample.fam 
+│    └── allsample.hmp.txt
+├── VCFtools_after
+│    ├── all.snps.indels_bi.frq
+│    ├── all.snps.indels_bi.lmiss
+│    ├── all.snps.indels_bi.summary  
+│    └── all.snps.indels_bi.TsTv.summary
+└── VCFtools_before
+     ├── all.snps.indels.frq
+     ├── all.snps.indels.lmiss
+     ├── all.snps.indels.summary       
+     └── all.snps.indels.TsTv.summary
 ```
 
 ```bash
 Annotations_custom
 ├── BuildCustomDB
-│    ├──snpeff_build.log
-└── ANN_snpEff
-     ├── {samples}.ann.vcf.gz 
-     ├── {samples}_summary.genes.txt       
-     └── {samples}_summary.html
-```
-
-```bash
-Annotations
-├── ANN_SnpSift
-│    ├──{samples}_SnpSift.vcf.gz
-└── ANN_snpEff
-     ├── {samples}.ann.vcf.gz 
-     ├── {samples}_summary.genes.txt       
-     └── {samples}_summary.html
-```
-
-```bash
-Annotations
-├── Call_ANN
-│    ├── {samples}_overlap_shared.vcf.gz
-├── Combine_VCF
-│    ├── {samples}_combine.vcf.gz
-├── Compare_results
-│    ├── {samples}_overlap.vcf.gz
-│    └── {samples}_unique.vcf.gz
+│    ├── snpeff_build.log
 └── ANN_snpEff
      ├── {samples}.ann.vcf.gz 
      ├── {samples}_summary.genes.txt       
