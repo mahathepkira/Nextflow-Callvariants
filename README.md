@@ -31,7 +31,7 @@ Nextflow-Callvariants เป็น bioinformatics pipline ที่พัฒน�
 nextflow run main.nf -profile gb --input data --reference <name-species> --outdir results
 ```
 ### Options
-### Input and Ouput Options
+#### Input and Ouput Options
 - `--input` = โฟลเดอร์ input (จำเป็น:ค่าเริ่มต้น:data)
 - `--output` = โฟล์เดอร์ output (จำเป็น:ค่าเริ่มต้น:output)
 #### QC Options
