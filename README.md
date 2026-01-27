@@ -31,10 +31,32 @@ Nextflow-Callvariants เป็น bioinformatics pipline ที่พัฒน�
 nextflow run main.nf -profile gb --input data --reference <name-species> --outdir results
 ```
 ### Options
-- `--reference` = reference ที่ต้องการทำ Alignment และ Variants Calling (จำเป็น)
-- `--input` = โฟลเดอร์ input (จำเป็น:ค่าเริ่มต้น:data)
-- `--outdir` = โฟล์เดอร์ output (จำเป็น:ค่าเริ่มต้น:output)
-- `-profile`  = เลือกไฟล์ config ในการรัน Nextflow
+Variant Calling
+
+Options
+--input = โฟลเดอร์ input (จำเป็น:ค่าเริ่มต้น:data)
+--output = โฟล์เดอร์ output (จำเป็น:ค่าเริ่มต้น:output)
+
+QC
+--phred =  ค่า phred score สำหรับขั้นตอน Pre-processing (ค่าเริ่มต้น:20 | 0-100)
+--minlen = จำนวน reads ที่สั้นที่สุดที่ยอมรับได้สำหรับขั้นตอน Pre-processing (ค่าเริ่มต้น:50 | 5-300)
+--reads_type = ชนิดของ reads [SE, PE|ค่าเริ่มต้น:PE] 
+
+
+Alignment
+
+--reference = reference ที่ต้องการทำ Alignment และ Variants Calling ["ref_fasta_ja", "ref_fasta_in", "ref_fasta_Mesculenta","ref_fasta_Zmays", "ref_fasta_Slycopersicum", "ref_fasta_Cannuum", "ref_fasta_ChineseLong", "ref_fasta_Gy14", "ref_fasta_IRGSP-1.0", "ref_fasta_ASM465v1", "ref_fasta_Cmaxima", "ref_fasta_Cmoschata",          
+                                                                 "ref_fasta_Cpepo"] (จำเป็น) 
+--mapQ = mapping Quality สำหรับการ alingment (ค่าเริ่มต้น:30 | 0-60 )
+
+
+Callvariant
+--window_size = window size สำหรับการวม gvcf เพื่อสร้างไฟล์ vcf (ค่าเริ่มต้น:5000000 | 100000 - 10000000 )
+
+Postprocess
+--vcfknowsite = ใช้  vcf สำหรับการทำ recalibrator หรือไม่  (on, off | ค่าเริ่มต้น: on)
+--bi_allelic = กรอง bi allelic snps  (filter,non-filter | ค่าเรื่มต้น: filter)
+--export = convert ไฟล์ vcf สู่รูปแบบข้อมูลอื่นๆ (hmp, bedbimfam, both | ค่าเริ่มต้น: both)
 
 
 ## 3. การเตรียมเครื่องมือและข้อมูลสำหรับ nextflow-Callvariants
