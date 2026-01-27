@@ -1,0 +1,53 @@
+process {
+  executor = 'local'
+  cache = 'lenient'
+
+  withName: Alignment_bwa {
+    module = 'BWA/0.7.17-foss-2018b'
+    cpus = 8
+    memory = '64 GB'
+  }
+
+  withName: Sam_view {
+    module = 'SAMtools/1.9-foss-2018b'
+    cpus = 8
+    memory = '64 GB'
+  }
+
+  withName: Sort_bam {
+    module = 'Java/1.8.0_201:picard/2.9.5-Java-1.8.0_201'
+    cpus = 1
+    memory = '16 GB'
+  }
+  
+  withName: Mark_duplicates {
+  module = 'Java/1.8.0_201
+  picard/2.9.5-Java-1.8.0_201:SAMtools/1.9-foss-2018b:HTSlib/1.9-foss-2018b'
+  cpus = 4
+  memory = '32 GB'
+  }
+
+  withName: Base_recalibrator {
+  module = 'GATK/3.8-1-Java-1.8.0_144'
+  cpus = 8
+  memory = '64 GB'
+  }
+
+  withName: Call_GVCF {
+  module = 'GATK/3.8-1-Java-1.8.0_144:picard/2.9.5-Java-1.8.0_201:HTSlib/1.9-foss-2018b'
+  cpus = 10
+  memory = '96 GB'
+  }
+
+  withName: Combine_GVCF {
+  module = 'GATK/3.8-1-Java-1.8.0_144:picard/2.9.5-Java-1.8.0_201:HTSlib/1.9-foss-2018b'
+  cpus = 10
+  memory = '96 GB'
+  }
+
+  withName: VcftoBed {
+  module = 'PLINK/1.9b_4.1-x86_64'
+  cpus = 1
+  memory = '8 GB'
+  }
+}
