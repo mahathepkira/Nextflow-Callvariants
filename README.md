@@ -62,7 +62,7 @@ Nextflow: version 24
    - GATK version 4.5.0
    - htsib version 1.19.1
 4. MultiQC
-   - 
+   - MultiQC verion 
 5. Postprocess
    - VCFtools version 0.1.16
    - BCFtools version 1.17
