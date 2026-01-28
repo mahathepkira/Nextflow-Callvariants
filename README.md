@@ -13,12 +13,9 @@
 Nextflow-Callvariants เป็น bioinformatics pipline ที่พัฒนาขึ้นสำหรับการทำ Variants Calling โดยจะมีขั้นตอนดังต่อไปนี้ 
 1. Quality Control
 2. Sequence Alignment
-3. Quality Mapped
-4. Mark Duplicates
-5. Base Recalibrate
-6. Variants Calling
-7. VCF stats
-8. Convert VCF to BED,BIM,FAM and hmp
+3. Callvariant
+4. MultiQC
+5. Postprocess
 
 ![ภาพ nextflow](Nextflow-Callvariants.drawio.png)
 
@@ -28,12 +25,12 @@ Nextflow-Callvariants เป็น bioinformatics pipline ที่พัฒน�
 ผู้ใช้งานสามารถใช้คำสั่งต่อไปนี้ในการสั่งใช้งาน nextflow-vep โดยข้อมูลที่อยู่ใน data จะต้องอยู่ในรูป vcf.gz โดย workflow การทำงานจะเป็นไปตามเส้นแดง
 
 ```bash
-nextflow run main.nf -profile gb --input data --reference <name-species> --outdir results
+nextflow run main.nf -profile gb --input <path-input> --reads_type SE --reference ref_fasta_IRGSP-1.0 --output <path-output>
 ```
 ### Options
 #### Input and Ouput Options
-- `--input` = โฟลเดอร์ input (จำเป็น:ค่าเริ่มต้น:data)
-- `--output` = โฟล์เดอร์ output (จำเป็น:ค่าเริ่มต้น:output)
+- `--input` = โฟลเดอร์ input (จำเป็น)
+- `--output` = โฟล์เดอร์ output (จำเป็น)
 #### QC Options
 - `--phred` =  ค่า phred score สำหรับขั้นตอน Pre-processing (ค่าเริ่มต้น:20 | 0-100)
 - `--minlen` = จำนวน reads ที่สั้นที่สุดที่ยอมรับได้สำหรับขั้นตอน Pre-processing (ค่าเริ่มต้น:50 | 5-300)
@@ -59,20 +56,16 @@ Nextflow: version 24
    - BWA version 0.7.17
    - samtools version 1.18
    - Picard version 2.25.1
-3. Quality Mapped
    - Qualimap version 2.3
-4. Mark Duplicates
-   - Picard version 2.25.1
-5. Base Recalibrate
    - GATK version 4.5.0
-6. Variants Calling
+3. Callvariant
    - GATK version 4.5.0
-   - GATK (version 3.8.1) 
    - htsib version 1.19.1
-7. VCF stats
+4. MultiQC
+   - 
+5. Postprocess
    - VCFtools version 0.1.16
    - BCFtools version 1.17
-8. Convert VCF to BED,BIM,FAM and hmp
    - PLINK version 1.9b
    - BCFtools version 1.17
    - TASSEL version 5.2.59
