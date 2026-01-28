@@ -249,112 +249,268 @@ singularity {
 ### Quality Control
 เครื่องมือชีวสารสนเทศในการทำ Quality Control ได้แก่ Trimmomatric (version 0.38) สำหรับการปรับแต่งคุณภาพข้อมูล และใช้ FastQC (version 0.11.9) ในการแสดงผลข้อมูลก่อนและหลังปรับแต่งคุณภาพของข้อมูล
 ```bash
-process Trimmmomatic {
+process Trimmmomatic_Paired {
 
   tag { "${fileId}" }
 
   publishDir "${outputPrefixPath(params, task)}"
-//  publishDir "${s3OutputPrefixPath(params, task)}"
 
   input:
   tuple val(fileId), file(read1), file(read2)
 
   output:
-  tuple val(fileId), file("${prefix}_R1_paired.fastq.gz"), file("${prefix}_R2_paired.fastq.gz")
-  tuple val(fileId), file("${prefix}_R1_unpaired.fastq.gz"), file("${prefix}_R2_unpaired.fastq.gz")
+  tuple val(fileId), file("${prefix}_R1_trimmed.fastq.gz"), file("${prefix}_R2_trimmed.fastq.gz")
 
   script:
   prefix=fileId
 
   """
-  java -jar \$EBROOTTRIMMOMATIC/trimmomatic-0.38.jar PE -phred33 -threads 8 \
+  java -jar \$EBROOTTRIMMOMATIC/trimmomatic-0.38.jar PE -phred33 -threads ${task.cpus} \
   ${read1} ${read2} \
-  ${prefix}_R1_paired.fastq.gz ${prefix}_R1_unpaired.fastq.gz \
-  ${prefix}_R2_paired.fastq.gz ${prefix}_R2_unpaired.fastq.gz \
-  ILLUMINACLIP:/nbt_main/home/lattapol/tools/Trimmomatic-0.39/adapters/TruSeq3-PE.fa:2:30:10 \
-  LEADING:20 TRAILING:20 \
-  SLIDINGWINDOW:4:20 MINLEN:50
+  ${prefix}_R1_trimmed.fastq.gz ${prefix}_R1_untrimmed.fastq.gz \
+  ${prefix}_R2_trimmed.fastq.gz ${prefix}_R2_untrimmed.fastq.gz \
+  ILLUMINACLIP:${params.adapterFiles}:2:30:10 \
+  LEADING:${params.phred} TRAILING:${params.phred} \
+  SLIDINGWINDOW:4:20 MINLEN:${params.minlen}
   """
 }
 ```
 ```bash
-process FastQC {
+process Trimmmomatic_Single {
 
   tag { "${fileId}" }
 
   publishDir "${outputPrefixPath(params, task)}"
-//  publishDir "${s3OutputPrefixPath(params, task)}"
 
   input:
-  tuple val(fileId), file(read1), file(read2)
+  tuple val(fileId), file(reads)
 
   output:
-  tuple val(fileId), file("*.zip"), file("*.html")
+  tuple val(fileId), file("${prefix}_trimmed.fastq.gz")
 
   script:
   prefix=fileId
 
   """
-  fastqc ${read1} ${read2} --threads 8
-
+  java -jar \$EBROOTTRIMMOMATIC/trimmomatic-0.38.jar SE -phred33 -threads ${task.cpus} \
+  ${reads} \
+  ${prefix}_trimmed.fastq.gz \
+  ILLUMINACLIP:${params.adapterFiles}:2:30:10 \
+  LEADING:${params.phred} TRAILING:${params.phred} \
+  SLIDINGWINDOW:4:20 MINLEN:${params.minlen}
   """
 }
 ```
+```bash
+process FastqcForPaired {
+
+  tag { key }
+  publishDir "${outputPrefixPath(params, task)}"
+
+  input:
+  tuple val(key), file(reads1), file(reads2)
+
+  output:
+  tuple val(key), file("*.zip"), file("*.html")
+
+  script:
+  """
+  fastqc ${reads1} ${reads2} --threads 8
+  """
+}
+
+```
+```bash
+process FastqcForSingle {
+
+  tag { key }
+  publishDir "${outputPrefixPath(params, task)}"
+
+  input:
+  tuple val(key), file(reads)
+
+  output:
+  tuple val(key), file("*.zip"), file("*.html")
+
+  script:
+  """
+  fastqc --threads 8 ${reads}
+  """
+}
+```
+```bash
+process FastqcForSingle_visualize {
+
+
+  publishDir "${outputPrefixPath(params, task)}"
+
+  input:
+  path zip_qc
+
+  output:
+  path "fastqc_summary.csv"
+
+  script:
+
+  """
+  for file in *.zip; do unzip -o "\$file" -d extracted/; done
+  echo "sameple_name,Total_Sequences_BeforeQC,Total_Sequences_AfterQC,Sequence_length_BeforeQC,Sequence_length_AfterQC,%GC_BeforeQC,%GC_AfterQC" > fastqc_summary.csv
+  declare -A before_qc after_qc
+
+  for file in extracted/*/fastqc_data.txt; do
+      filename=\$(grep "Filename" "\$file" | cut -f2)
+      total_sequences=\$(grep "Total Sequences" "\$file" | cut -f2)
+      seq_length=\$(grep "Sequence length" "\$file" | cut -f2)
+      gc_content=\$(grep "%GC" "\$file" | cut -f2)
+
+      base_name=\$(echo "\$filename" | sed -E 's/_R?[12]//; s/_trimmed//; s/_q20\\.cutadap//; s/(\\.fastq)?\\.gz\$//')
+
+      if [[ "\${filename}" == *trimmed* ]]; then
+           after_qc["\$base_name"]="\$total_sequences,\$seq_length,\$gc_content"
+      else
+           before_qc["\$base_name"]="\$total_sequences,\$seq_length,\$gc_content"
+      fi
+
+  done
+
+  all_keys=(\$(printf "%s\n" "\${!before_qc[@]}" "\${!after_qc[@]}" | sort -u))
+
+  for key in "\${all_keys[@]}"; do
+      before="\${before_qc[\$key]:-,,}"
+      after="\${after_qc[\$key]:-,,}"
+
+      before_total_sequences=\$(echo \$before | cut -d',' -f1)
+      before_seq_length=\$(echo \$before | cut -d',' -f2)
+      before_gc_content=\$(echo \$before | cut -d',' -f3)
+
+      after_total_sequences=\$(echo \$after | cut -d',' -f1)
+      after_seq_length=\$(echo \$after | cut -d',' -f2)
+      after_gc_content=\$(echo \$after | cut -d',' -f3)
+
+      echo "\$key,\$before_total_sequences,\$after_total_sequences,\$before_seq_length,\$after_seq_length,\$before_gc_content,\$after_gc_content" >> fastqc_summary.csv
+
+ done
+ """
+}
+```
+```bash
+process FastqcForPaired_visualize {
+
+  publishDir "${outputPrefixPath(params, task)}"
+
+  input:
+  path zip_qc
+
+  output:
+  path "fastqc_summary.csv"
+
+  script:
+
+  """
+  for file in *.zip; do unzip -o "\$file" -d extracted/; done
+  echo "sameple_name,ReadPair,Total_Sequences_BeforeQC,Total_Sequences_AfterQC,Sequence_length_BeforeQC,Sequence_length_AfterQC,%GC_BeforeQC,%GC_AfterQC" > fastqc_summary.csv
+  declare -A before_qc after_qc
+
+  for file in extracted/*/fastqc_data.txt; do
+      filename=\$(grep "Filename" "\$file" | cut -f2)
+      total_sequences=\$(grep "Total Sequences" "\$file" | cut -f2)
+      seq_length=\$(grep "Sequence length" "\$file" | cut -f2)
+      gc_content=\$(grep "%GC" "\$file" | cut -f2)
+
+      base_name=\$(echo "\$filename" | sed -E 's/_R?[12]//; s/_trimmed//; s/_q20\\.cutadap//; s/(\\.fastq)?\\.gz\$//')
+      read_pair=\$(echo "\$filename" | grep -oE "_R?[12]" | sed 's/_//')
+      [[ -z "\$read_pair" ]] && read_pair="R?"
+
+      key="\${base_name}_\${read_pair}"
+
+      if [[ "\${filename}" == *trimmed* ]]; then
+           after_qc["\$key"]="\$total_sequences,\$seq_length,\$gc_content"
+           echo ">>> AFTER_QC[\$key] = \${after_qc[\$key]}"
+      else
+           before_qc["\$key"]="\$total_sequences,\$seq_length,\$gc_content"
+           echo ">>> BEFORE_QC[\$key] = \${before_qc[\$key]}"
+      fi
+
+  done
+
+  all_samples=(\$(printf "%s\n" "\${!before_qc[@]}" "\${!after_qc[@]}" | sed -E 's/_(R[12])\$//' | sort -u))
+
+  for sample in "\${all_samples[@]}"; do
+      for read_pair in R1 R2; do
+          key="\${sample}_\${read_pair}"
+
+          before="\${before_qc[\$key]:-,,}"
+          after="\${after_qc[\$key]:-,,}"
+
+          before_total_sequences=\$(echo \$before | cut -d',' -f1)
+          before_seq_length=\$(echo \$before | cut -d',' -f2)
+          before_gc_content=\$(echo \$before | cut -d',' -f3)
+
+          after_total_sequences=\$(echo \$after | cut -d',' -f1)
+          after_seq_length=\$(echo \$after | cut -d',' -f2)
+          after_gc_content=\$(echo \$after | cut -d',' -f3)
+
+          echo "\$sample,\$read_pair,\$before_total_sequences,\$after_total_sequences,\$before_seq_length,\$after_seq_length,\$before_gc_content,\$after_gc_content" >> fastqc_summary.csv
+      done
+  done
+  """
+}
+```
+
 ### Sequence Alignment
 เครื่องมือชีวสารสนเทศในการทำ Sequence Alignment ได้แก่ BWA (version 0.7.17) แล้วทำการแปลงไฟล์ sam เป็นไฟล์ bam ด้วย samtools (version 1.18) แล้วทำการจัดเรียงข้อมุลด้วย Picard (version 2.25.1)
 ```bash
-process Alignment_bwa {
+process AlignmentSingle {
 
   tag { "${fileId}" }
 
   publishDir "${outputPrefixPath(params, task)}"
-//  publishDir "${s3OutputPrefixPath(params, task)}"
 
   input:
-  tuple val(fileId), file(read1), file(read2)
+  tuple val(fileId), file(read1)
 
   output:
   tuple val(fileId), file("${fileId}.aln.sorted.bam")
 
   script:
-  def prefix = fileId.tokenize('_')[1]
+  prefix = fileId
 
   """
-  bwa mem -t 8 -R "@RG\\tID:${fileId}\\tLB:lib1\\tPL:illumina\\tSM:${prefix}\\tPU:unit1" -M ${params.reference} ${read1} ${read2} | \
+  bwa mem -t 8 -R "@RG\\tID:${fileId}\\tLB:lib1\\tPL:illumina\\tSM:${prefix}\\tPU:unit1" -M ${params.reference} ${read1} | \
 
-  samtools view -bS -@ 8 - | \
+  samtools view -bS -@ 8 - | samtools view -q ${params.mapQ} -b | \
 
   java -XX:ParallelGCThreads=8 -jar \$EBROOTPICARD/picard.jar SortSam I=/dev/stdin O=${fileId}.aln.sorted.bam SORT_ORDER=coordinate
 
   """
 }
 ```
-### Quality Mapped
-เครื่องมือชีวสารสนเทศในการทำ Quality Mapped ได้แก่ Qualimap version 2.3 ในการตรวจสอบคุณภาพในการ Mapped จากขั้นตอน Sequence Alignment
 ```bash
-process Qualimap {
+process AlignmentPaired {
 
   tag { "${fileId}" }
 
   publishDir "${outputPrefixPath(params, task)}"
-//  publishDir "${s3OutputPrefixPath(params, task)}"
 
   input:
-  tuple val(fileId), file(bam)
+  tuple val(fileId), file(read1), file(read2)
 
   output:
-  path "*"
-
+  tuple val(fileId), file("${fileId}.aln.sorted.bam")
+  
   script:
-  prefix=fileId
-
+  prefix = fileId
+  
   """
-  qualimap bamqc -bam ${bam} --java-mem-size=32G
+  bwa mem -t 8 -R "@RG\\tID:${fileId}\\tLB:lib1\\tPL:illumina\\tSM:${prefix}\\tPU:unit1" -M ${params.reference} ${read1} ${read2} | \
+  
+  samtools view -bS -@ 8 - | samtools view -q ${params.mapQ} -b | \
 
+  java -XX:ParallelGCThreads=8 -jar \$EBROOTPICARD/picard.jar SortSam I=/dev/stdin O=${fileId}.aln.sorted.bam SORT_ORDER=coordinate
+   
   """
 }
 ```
-### Mark Duplicates
 เครื่องมือชีวสารสนเทศในการทำ Mark Duplicates ได้แก่ Picard (version 2.25.1)
 ```bash
 process Mark_duplicates {
@@ -362,7 +518,6 @@ process Mark_duplicates {
   tag { "${fileId}" }
 
   publishDir "${outputPrefixPath(params, task)}"
- //  publishDir "${s3OutputPrefixPath(params, task)}"
 
   input:
   tuple val(fileId), file(sortbam)
@@ -373,13 +528,12 @@ process Mark_duplicates {
 
   script:
   prefix=sortbam.simpleName
-
+  
   """
   java -XX:ParallelGCThreads=8 -Djava.io.tmpdir=java_temps -jar \$EBROOTPICARD/picard.jar MarkDuplicates I=${sortbam} O=${prefix}.aln.sorted.mrkDup.bam METRICS_FILE=${prefix}.dup_metrics.txt CREATE_INDEX=true
   """
 }
 ```
-### Base Recalibrate
 เครื่องมือชีวสารสนเทศในการทำ Base Recalibrate ได้แก่ GATK (version 4.5.0)
 ```bash
 process Base_recalibrator {
@@ -387,7 +541,6 @@ process Base_recalibrator {
   tag { "${fileId}" }
 
   publishDir "${outputPrefixPath(params, task)}"
- //  publishDir "${s3OutputPrefixPath(params, task)}"
 
   input:
   tuple val(fileId), file(markDup)
@@ -402,6 +555,61 @@ process Base_recalibrator {
   gatk --java-options "-Xmx16G" BaseRecalibrator -R ${params.reference} -I ${markDup} -known-sites ${params.knownsite} -O ${prefix}.recal.table
 
   gatk --java-options "-Xmx16G" ApplyBQSR -R ${params.reference} -I ${markDup} --bqsr-recal-file ${prefix}.recal.table -O "${prefix}.recal.bam"
+  """
+}
+```
+เครื่องมือชีวสารสนเทศในการทำ Quality Mapped ได้แก่ Qualimap version 2.3 ในการตรวจสอบคุณภาพในการ Mapped จากขั้นตอน Sequence Alignment
+```bash
+process Qualimap {
+
+  tag { prefix }
+  publishDir "${outputPrefixPath(params, task)}"
+
+  input:
+  tuple val(key), file(bam)
+
+  output:
+  file "*"
+
+  script:
+  prefix=bam.baseName
+
+  """
+  qualimap bamqc -bam ${bam}
+  """
+}
+```
+```bash
+process Qualimap_visualize {
+
+  publishDir "${outputPrefixPath(params, task)}"
+
+  input:
+  path qmap
+
+  output:
+  path "*"
+
+  script:
+
+  """
+  echo "filename,number_of_reads,number_of_mapped_reads,percent_of_mapped_reads,percent_of_unmapped_reads,mean_coverage_x,sd_coverage_x,duplication_rate" > qualimap_summary.csv
+
+  for dir in *_stats; do
+      file="\$dir/genome_results.txt"
+      if [[ -f "\$file" ]]; then
+         name=\${dir%%[_\\.]*}
+         total_reads=\$(grep "number of reads =" "\$file" | awk '{print \$NF}' | tr -d ',')
+         mapped_reads=\$(grep "number of mapped reads =" "\$file" | awk '{print \$(NF-1)}' | tr -d ',')
+         mapped_percent=\$(grep "number of mapped reads =" "\$file" | awk -F '[()]' '{print \$2}' | tr -d '%')
+         unmapped_percent=\$(awk -v mp="\$mapped_percent" 'BEGIN {printf "%.2f", 100 - mp}')
+         mean_coverage=\$(grep "mean coverageData" "\$file" | awk '{print \$NF}' | sed 's/X//')
+         std_coverage=\$(grep "std coverageData" "\$file" | awk '{print \$NF}' | sed 's/X//')
+         duplication_rate=\$(grep "number of duplicated reads" "\$file" | awk '{print \$NF}' | tr -d '%')
+
+         echo "\$name,\$total_reads,\$mapped_reads,\$mapped_percent,\$unmapped_percent,\$mean_coverage,\$std_coverage,\$duplication_rate" >> qualimap_summary.csv
+      fi
+  done
   """
 }
 ```
@@ -436,42 +644,118 @@ process Call_GVCF {
 }
 ```
 ```bash
-process Combine_GVCF {
-
-  tag { "${fileId}" }
-
-  publishDir "${outputPrefixPath(params, task)}"
- //  publishDir "${s3OutputPrefixPath(params, task)}"
+process GenomicsDBImport {
 
   input:
-  tuple val(fileId), file(groupedGVCFs)
-  //tuple fileId, file(groupedtbi)
+  tuple val(region), path(gvcfs), path(gvcftbi)
 
   output:
-  file("all.snps.indels.vcf.gz")
+  tuple val(region), path("gendb")
 
   script:
-
   """
-  echo "${fileId.withIndex().collect{ fileId, idx -> "${groupedGVCFs[idx]}" }.join("\n")}" > all_gvcf.list
-
-  getindexvcf.sh
-
-  java -Xmx500G -jar \$EBROOTGATK/GenomeAnalysisTK.jar -T GenotypeGVCFs -R ${params.reference} --dbsnp ${params.knownsite} -nt 12 --max_alternate_alleles 6 \$(cat all_gvcf.list | xargs -I {} echo "-V {}") -o all.snps.indels.vcf
-
-  bgzip all.snps.indels.vcf
+  gatk --java-options "-Xmx${params.gendb_mem ?: '16g'}" GenomicsDBImport \
+    -R ${params.reference} \
+    -L ${region.region} \
+    --genomicsdb-workspace-path gendb \
+    \$(printf -- "--variant %s " ${gvcfs})
   """
 }
 ```
+```bash
+process GenotypeGVCFs {
+
+  input:
+  tuple val(region), path(gendb)
+
+  output:
+  path("*.vcf.gz")
+  path("*.vcf.gz.tbi")
+
+  script:
+  def region_tag = region.region.replace(':','_')
+  """
+  gatk --java-options "-Xmx16g" GenotypeGVCFs \
+    --allow-old-rms-mapping-quality-annotation-data \
+    -R ${params.reference} \
+    -L ${region.region} \
+    -V gendb://gendb \
+    -O ${region_tag}.vcf.gz
+  """
+}
+```
+```bash
+process Combine_finalVCF {
+
+ publishDir "${outputPrefixPath(params, task)}"
+
+ input:
+ path(vcf)
+ path(vcftbi)
+ 
+ output:
+ path("allsample.sorted.vcf.gz")
+ path("allsample.sorted.vcf.gz.tbi")
+
+ script:
+ """
+ gatk MergeVcfs ${vcf.collect { "-I $it" }.join(' ')} -O allsample.vcf.gz
+ gatk SortVcf -R ${params.reference} -I allsample.vcf.gz -O allsample.sorted.vcf.gz
+ gatk IndexFeatureFile -I allsample.sorted.vcf.gz
+ """
+}
+```
+
 ### VCF stats
 สำหรับเครื่องมือชีวสารสนเทศที่ใช้ในขั้นตอนการทำข้อมูลสถิติของ VCF ได้แก่ VCFTools (version 0.1.16) ในการสรุปข้อมูล allele frequency, missing data, Transition/Transversion (Ts/Tv) ratio และ สรุปข้อมูลจำนวน snps
 ```bash
-process VCFtools_stats {
+process BCFtoolsBefore_stats {
 
   tag { "${vcf}" }
 
-  publishDir "${outputPrefixPath(params, task)}"
-//  publishDir "${s3OutputPrefixPath(params, task)}"
+  publishDir "${params.output}/Postprocess/VCF_Stats/before_postprocess/bcftools"
+
+  input:
+  file(vcf)
+
+  output:
+  path "*"
+
+  script:
+  prefix=vcf
+
+  """
+  bcftools stats --threads 8 ${vcf} > ${prefix}.before.stat
+  """
+}
+```
+```bash
+process BCFtoolsAfter_stats {
+
+  tag { "${vcf}" }
+
+  publishDir "${params.output}/Postprocess/VCF_Stats/after_postprocess/bcftools"
+
+  input:
+  file(vcf)
+
+  output:
+  path "*"
+
+  script:
+  prefix=vcf
+
+  """
+  bcftools stats --threads 8 ${vcf} > ${prefix}.after.stat
+  """
+}
+```
+```bash
+process VCFtoolsBefore_stats {
+
+  tag { "${vcf}" }
+
+  publishDir "${params.output}/Postprocess/VCF_Stats/before_postprocess/VCFtools"
 
   input:
   file(vcf)
@@ -487,17 +771,37 @@ process VCFtools_stats {
   """
   bash /nbt_main/home/lattapol/nextflow-Callvariants/bin/quality.sh ${vcf}
   """
+```
+```bash
+process VCFtoolsAfter_stats {
+
+  tag { "${vcf}" }
+
+  publishDir "${params.output}/Postprocess/VCF_Stats/after_postprocess/VCFtools"
+
+  input:
+  file(vcf)
+
+  output:
+  file("*.frq")
+  file("*.lmiss")
+  file("*.TsTv.summary")
+  file("*.summary")
+  script:
+  prefix=vcf
+
+  """
+  bash /nbt_main/home/lattapol/nextflow-Callvariants/bin/quality.sh ${vcf} 
+  """
 }
 ```
 ทำการสรุปข้อมูล allele frequency และ missing data สำหรับการทำ histrogram ด้วย Python
 ```bash
-
-process Histogram {
+process HistogramBefore {
 
   tag { "${frq}" }
 
-  publishDir "${outputPrefixPath(params, task)}"
-//  publishDir "${s3OutputPrefixPath(params, task)}"
+  publishDir "${params.output}/Postprocess/VCF_Stats/before_postprocess/VCFtools/Histogram"
 
   input:
   file(frq)
@@ -514,6 +818,29 @@ process Histogram {
   """
 }
 ```
+```bash
+process HistogramAfter {
+
+  tag { "${frq}" }
+
+  publishDir "${params.output}/Postprocess/VCF_Stats/after_postprocess/VCFtools/Histogram"
+
+  input:
+  file(frq)
+  file(lmiss)
+
+  output:
+  file("*.csv")
+ 
+  script:
+
+  """
+  python /nbt_main/home/lattapol/nextflow-Callvariants/bin/create_AF_his.py ${frq}
+  python /nbt_main/home/lattapol/nextflow-Callvariants/bin/create_lmiss_his.py ${lmiss}   
+  """
+}
+```
+```bash
 รายละเอียดใน quality.sh 
 ```bash
 #!/bin/bash
@@ -608,29 +935,68 @@ if __name__ == "__main__":
 ### Convert VCF to BED,BIM,FAM and hmp
 เครื่องมือชีวสารสนเทศในการแปลงไฟล์ได้แก่ BCFtools (version 1.17) สำหรับกรอง snp ให้เป็น biallelic, PLINK (version 1.9b) สำหรับแปลงไฟล์เป็น bed,bim,fam และ TASSEL (version 5.2.59) สำหรับแปลงไฟล์เป็น hmp
 ```bash
-process VcftoBed {
+process VCFtoVCFbi {
 
-  tag { "${combine_gvcf}" }
+  tag { "${vcf}" }
 
-  publishDir "${outputPrefixPath(params, task)}"
- //  publishDir "${s3OutputPrefixPath(params, task)}"
+  publishDir "${params.output}/Postprocess/VCF_biallelic/"
 
   input:
-  file(combine_gvcf)
+  file(vcf)
+  file(vcftbi)
 
   output:
-  file("allsample.bed")
-  file("allsample.bim")
-  file("allsample.fam")
-  file("allsample.hmp.txt")
-  file("all.snps.indels_bi.vcf.gz")
+  file("${prefix}_all.snps.indels_bi.vcf.gz")
 
   script:
+  prefix=vcf.simpleName
 
   """
-  bcftools view -m2 -M2 -v snps ${combine_gvcf} -o all.snps.indels_bi.vcf.gz
-  plink --vcf all.snps.indels_bi.vcf.gz --make-bed --out allsample --double-id --allow-extra-chr
-  run_pipeline.pl -Xmx32G -vcf all.snps.indels_bi.vcf.gz -sortPositions -export allsample.hmp.txt -exportType Hapmap
+  bcftools view -m2 -M2 -v snps ${vcf} -o ${prefix}_all.snps.indels_bi.vcf.gz
+  """
+}
+```
+```bash
+process VCFtoHMP {
+
+  tag { "$vcf}" }
+
+  publishDir "${params.output}/Postprocess/VCF_conversions/"
+
+  input:
+  file(vcf)
+
+  output:
+  file("${prefix}.hmp.txt")
+
+  script:
+  prefix=vcf.simpleName
+
+  """
+  run_pipeline.pl -Xmx128G -vcf ${vcf} -sortPositions -export ${prefix}.hmp.txt -exportType Hapmap
+  """
+}
+```
+```bash
+process VCFtoBEDBIMFAM {
+
+  tag { "${vcf}" }
+
+  publishDir "${params.output}/Postprocess/VCF_conversions/"
+
+  input:
+  file(vcf)
+
+  output:
+  file("${prefix}.bed")
+  file("${prefix}.bim")
+  file("${prefix}.fam")
+
+  script:
+  prefix=vcf.simpleName
+
+  """
+  plink --vcf ${vcf} --make-bed --out ${prefix} --double-id --allow-extra-chr
   """
 }
 ```
