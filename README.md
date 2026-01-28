@@ -32,9 +32,9 @@ nextflow run main.nf -profile gb --input <path-input> \
                                  --minlen 50 \
                                  --reads_type SE \
                                  --reference ref_fasta_IRGSP-1.0 \
+                                 --vcfknowsite on \
                                  --mapQ 30 \
                                  --window_size 5000000 \
-                                 --vcfknowsite on \
                                  --bi_allelic filter \
                                  --export \
                                  --output <path-output>
@@ -49,12 +49,12 @@ nextflow run main.nf -profile gb --input <path-input> \
 - `--minlen` = จำนวน reads ที่สั้นที่สุดที่ยอมรับได้สำหรับขั้นตอน Pre-processing (ค่าเริ่มต้น:50 | 5-300)
 - `--reads_type` = ชนิดของ reads [SE, PE|ค่าเริ่มต้น:PE]
 #### Alignment Options
-- `--reference` = reference ที่ต้องการทำ Alignment และ Variants Calling ["ref_fasta_ja", "ref_fasta_in", "ref_fasta_Mesculenta","ref_fasta_Zmays", "ref_fasta_Slycopersicum", "ref_fasta_Cannuum", "ref_fasta_ChineseLong", "ref_fasta_Gy14", "ref_fasta_IRGSP-1.0", "ref_fasta_ASM465v1", "ref_fasta_Cmaxima", "ref_fasta_Cmoschata","ref_fasta_Cpepo"] (จำเป็น) 
+- `--reference` = reference ที่ต้องการทำ Alignment และ Variants Calling ["ref_fasta_ja", "ref_fasta_in", "ref_fasta_Mesculenta","ref_fasta_Zmays", "ref_fasta_Slycopersicum", "ref_fasta_Cannuum", "ref_fasta_ChineseLong", "ref_fasta_Gy14", "ref_fasta_IRGSP-1.0", "ref_fasta_ASM465v1", "ref_fasta_Cmaxima", "ref_fasta_Cmoschata","ref_fasta_Cpepo"] (จำเป็น)
+- `--vcfknowsite` = ใช้  vcf สำหรับการทำ recalibrator หรือไม่  (on, off | ค่าเริ่มต้น: on)
 - `--mapQ` = mapping Quality สำหรับการ alingment (ค่าเริ่มต้น:30 | 0-60 )
 #### Callvariant Options
 - `--window_size` = window size สำหรับการวม gvcf เพื่อสร้างไฟล์ vcf (ค่าเริ่มต้น:5000000 | 100000 - 10000000 )
 #### Postprocess Options
-- `--vcfknowsite` = ใช้  vcf สำหรับการทำ recalibrator หรือไม่  (on, off | ค่าเริ่มต้น: on)
 - `--bi_allelic` = กรอง bi allelic snps  (filter,non-filter | ค่าเรื่มต้น: filter)
 - `--export` = convert ไฟล์ vcf สู่รูปแบบข้อมูลอื่นๆ (hmp, bedbimfam, both | ค่าเริ่มต้น: both)
 
@@ -260,7 +260,7 @@ singularity {
  
 ## 4. รายละเอียดขั้นตอนใน-nextflow-Callvariants
 ### Quality Control
-เครื่องมือชีวสารสนเทศในการทำ Quality Control ได้แก่ Trimmomatric (version 0.38) สำหรับการปรับแต่งคุณภาพข้อมูล และใช้ FastQC (version 0.11.9) ในการแสดงผลข้อมูลก่อนและหลังปรับแต่งคุณภาพของข้อมูล
+เครื่องมือชีวสารสนเทศในการทำ Quality Control ได้แก่ Trimmomatric (version 0.38) โดยทำการปรับแต่งข้อมูล `--phred` และ `--minlen` ตามที่ผู้ใช้ต้องการ และใช้ FastQC (version 0.11.9) ในการแสดงผลข้อมูลก่อนและหลังปรับแต่งคุณภาพของข้อมูล
 ```bash
 process Trimmmomatic_Paired {
 
@@ -471,7 +471,7 @@ process FastqcForPaired_visualize {
 ```
 
 ### Sequence Alignment
-เครื่องมือชีวสารสนเทศในการทำ Sequence Alignment ได้แก่ BWA (version 0.7.17) แล้วทำการแปลงไฟล์ sam เป็นไฟล์ bam ด้วย samtools (version 1.18) แล้วทำการจัดเรียงข้อมุลด้วย Picard (version 2.25.1)
+เครื่องมือชีวสารสนเทศในการทำ Sequence Alignment ได้แก่ BWA (version 0.7.17) ในการ Alignment ตาม `--reference` ที่ผู้ใช้งานเลือกแล้วจึงทำการการแปลงไฟล์ sam เป็นไฟล์ bam และกรอง read ด้วย `--mapQ` ตามที่ผู้ใช้งานกำหนดด้วย samtools (version 1.18) และทำการจัดเรียงข้อมุลด้วย Picard (version 2.25.1)
 ```bash
 process AlignmentSingle {
 
@@ -547,7 +547,7 @@ process Mark_duplicates {
   """
 }
 ```
-เครื่องมือชีวสารสนเทศในการทำ Base Recalibrate ได้แก่ GATK (version 4.5.0)
+เครื่องมือชีวสารสนเทศในการทำ Base Recalibrate ได้แก่ GATK (version 4.5.0) สำหรับขั้นตอนนี้หากผู้ใช้งานไม่มีไฟล์ VCF สามารถใช้งาน `--vcfknowsite off` ได้ เพื่อข้ามขั้นตอนนี้ไป
 ```bash
 process Base_recalibrator {
 
@@ -571,7 +571,7 @@ process Base_recalibrator {
   """
 }
 ```
-เครื่องมือชีวสารสนเทศในการทำ Quality Mapped ได้แก่ Qualimap version 2.3 ในการตรวจสอบคุณภาพในการ Mapped จากขั้นตอน Sequence Alignment
+เครื่องมือชีวสารสนเทศในการทำแสดงผลในส่วน Quality Mapped ได้แก่ Qualimap version 2.3 ในการตรวจสอบคุณภาพในการ Mapped จากขั้นตอน Sequence Alignment
 ```bash
 process Qualimap {
 
@@ -626,8 +626,8 @@ process Qualimap_visualize {
   """
 }
 ```
-### Variants Calling
-เครื่องมือชีวสารสนเทศในการทำ Variants Calling ได้แก่ GATK (version 4.5.0) ในการทำ HaplotypeCaller และใช้ GATK (version 3.8.1) ในการทำ GenotypeGVCFs สุดท้ายจึงใช้ htsib (version 1.19.1) ในการบีบอัดไฟล์
+### Callvariant
+เครื่องมือชีวสารสนเทศในการทำ HaplotypeCaller, GenomicsDBImport, GenotypeGVCFs และ การรวมไฟล์ ได้แก่ GATK (version 4.5.0) โดยการทำ HaplotypeCaller และใช้ GenomicsDBImport ในการสร้าง databases สำหรับการทำ GenotypeGVCFs โดยจะแบ่งช่วง reads ตาม `--window_size` ที่ผู้ใช้ต้องการ
 ```bash
 process Call_GVCF {
 
@@ -718,9 +718,8 @@ process Combine_finalVCF {
  """
 }
 ```
-
-### VCF stats
-สำหรับเครื่องมือชีวสารสนเทศที่ใช้ในขั้นตอนการทำข้อมูลสถิติของ VCF ได้แก่ VCFTools (version 0.1.16) ในการสรุปข้อมูล allele frequency, missing data, Transition/Transversion (Ts/Tv) ratio และ สรุปข้อมูลจำนวน snps
+### Postprocess
+สำหรับเครื่องมือชีวสารสนเทศที่ใช้ในขั้นตอนการทำข้อมูลสถิติของ VCF ได้แก่ VCFTools (version 0.1.16) และ BCFtools (version 1.17) ในการสรุปข้อมูล allele frequency, missing data, Transition/Transversion (Ts/Tv) ratio และ สรุปข้อมูลจำนวน snps
 ```bash
 process BCFtoolsBefore_stats {
 
@@ -945,8 +944,7 @@ if __name__ == "__main__":
     args = parser.parse_args()
     main(args.input_file)
 ```
-### Convert VCF to BED,BIM,FAM and hmp
-เครื่องมือชีวสารสนเทศในการแปลงไฟล์ได้แก่ BCFtools (version 1.17) สำหรับกรอง snp ให้เป็น biallelic, PLINK (version 1.9b) สำหรับแปลงไฟล์เป็น bed,bim,fam และ TASSEL (version 5.2.59) สำหรับแปลงไฟล์เป็น hmp
+เครื่องมือชีวสารสนเทศในการกรอง biallelic snps ได้แก่ BCFtools (version 1.17) โดยผู้ใช้สามารถใช้งาน `--bi_allelic` สำหรับกรอง snp ให้เป็น biallelic ได้
 ```bash
 process VCFtoVCFbi {
 
@@ -969,6 +967,7 @@ process VCFtoVCFbi {
   """
 }
 ```
+เครื่องมือชีวสารสนเทศในการแปลงไฟล์ VCF ได้แก่ PLINK (version 1.9b) สำหรับแปลงไฟล์เป็น bed,bim,fam และ TASSEL (version 5.2.59) สำหรับแปลงไฟล์เป็น hmp โดยผู้ใช้งานสามารถใช้ `--export` ในการเลือกชนิดไฟล์ที่ต้องการแปลงได้
 ```bash
 process VCFtoHMP {
 
