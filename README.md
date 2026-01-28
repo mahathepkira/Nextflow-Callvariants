@@ -21,12 +21,25 @@ Nextflow-Callvariants เป็น bioinformatics pipline ที่พัฒน�
 
 
 ## 2. การใช้งาน nextflow-Callvariants
-### การใช้งานแบบไม่ใช้ขั้นตอน Comapare_VCF 
-ผู้ใช้งานสามารถใช้คำสั่งต่อไปนี้ในการสั่งใช้งาน nextflow-vep โดยข้อมูลที่อยู่ใน data จะต้องอยู่ในรูป vcf.gz โดย workflow การทำงานจะเป็นไปตามเส้นแดง
-
+### การใช้งานอย่างง่าย
 ```bash
 nextflow run main.nf -profile gb --input <path-input> --reads_type SE --reference ref_fasta_IRGSP-1.0 --output <path-output>
 ```
+### การใช้งานแบบเต็มรูปแบบ
+```bash
+nextflow run main.nf -profile gb --input <path-input> \
+                                 --phred 20 \
+                                 --minlen 50 \
+                                 --reads_type SE \
+                                 --reference ref_fasta_IRGSP-1.0 \
+                                 --mapQ 30 \
+                                 --window_size 5000000 \
+                                 --vcfknowsite on \
+                                 --bi_allelic filter \
+                                 --export \
+                                 --output <path-output>
+```
+
 ### Options
 #### Input and Ouput Options
 - `--input` = โฟลเดอร์ input (จำเป็น)
@@ -44,7 +57,6 @@ nextflow run main.nf -profile gb --input <path-input> --reads_type SE --referenc
 - `--vcfknowsite` = ใช้  vcf สำหรับการทำ recalibrator หรือไม่  (on, off | ค่าเริ่มต้น: on)
 - `--bi_allelic` = กรอง bi allelic snps  (filter,non-filter | ค่าเรื่มต้น: filter)
 - `--export` = convert ไฟล์ vcf สู่รูปแบบข้อมูลอื่นๆ (hmp, bedbimfam, both | ค่าเริ่มต้น: both)
-
 
 ## 3. การเตรียมเครื่องมือและข้อมูลสำหรับ nextflow-Callvariants
 ### เครืองมือ 
@@ -69,6 +81,7 @@ Nextflow: version 24
    - PLINK version 1.9b
    - BCFtools version 1.17
    - TASSEL version 5.2.59
+   - Python version 3.10.4
      
 ### การเตรียม Config
 ผู้ใช้งานสามารปรับแต่งเครื่องมือที่ใช้งานในไฟล์ gb.config ให้เหมาะสมกับทรัพยากรในเครื่อง โดย gb.config จะทำงานรวมกับ nextflow.config โดยจะใช้ตัวเลือก `-profile` เพื่อเลือก config ที่จะใช้งาน
