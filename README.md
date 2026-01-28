@@ -79,25 +79,56 @@ Nextflow: version 24
      
 ### การเตรียม Config
 ผู้ใช้งานสามารปรับแต่งเครื่องมือที่ใช้งานในไฟล์ gb.config ให้เหมาะสมกับทรัพยากรในเครื่อง โดย gb.config จะทำงานรวมกับ nextflow.config โดยจะใช้ตัวเลือก `-profile` เพื่อเลือก config ที่จะใช้งาน
-```bash
+```
 process {
   executor = 'slurm'
   queue = 'memory'
   cache = 'lenient'
 
-  withName: Trimmmomatic {
+  withName: Trimmmomatic_Single {
     module = 'Trimmomatic/0.38-Java-1.8'
     cpus = 8
     memory = '64 GB'
   }
 
-  withName: FastQC {
+  withName: Trimmmomatic_Paired {
+    module = 'Trimmomatic/0.38-Java-1.8'
+    cpus = 8
+    memory = '64 GB'
+  }
+
+  withName: FastqcForSingleBefore {
+    beforeScript = 'export PATH=$HOME/tools/FastQC:$PATH'
+    cpus = 4
+    memory = '8 GB'
+  }
+
+  withName: FastqcForSingleAfter {
+    beforeScript = 'export PATH=$HOME/tools/FastQC:$PATH'
+    cpus = 4
+    memory = '8 GB'
+  }
+
+  withName: FastqcForPairedBefore {
+    module = 'FastQC/0.11.9-Java-11'
+    cpus = 8
+    memory = '64 GB'
+
+  }
+
+  withName: FastqcForPairedAfter {
     module = 'FastQC/0.11.9-Java-11'
     cpus = 8
     memory = '64 GB'
   }
 
-  withName: Alignment_bwa {
+  withName: AlignmentSingle {
+    module = 'BWA/0.7.17-GCCcore-11.2.0:SAMtools/1.18-GCC-12.3.0:picard/2.25.1-Java-11:'
+    cpus = 8
+    memory = '64 GB'
+  }
+
+  withName: AlignmentPaired {
     module = 'BWA/0.7.17-GCCcore-11.2.0:SAMtools/1.18-GCC-12.3.0:picard/2.25.1-Java-11:'
     cpus = 8
     memory = '64 GB'
@@ -121,41 +152,102 @@ process {
   memory = '96 GB'
   }
 
-  withName: Combine_GVCF {
-  module = 'GATK/3.8-1-Java-1.8.0_144:picard/2.18.27-Java-1.8.0_201:HTSlib/1.9-foss-2018b'
-  cpus = 12
-  memory = '800 GB'
+  withName: GenomicsDBImport {
+  module = 'GATK/4.5.0-java-17'
+  cpus = 10
+  memory = '96 GB'
+  }
+
+  withName: GenotypeGVCFs {
+  module = 'GATK/4.5.0-java-17'
+  cpus = 10
+  memory = '96 GB'
+  }
+
+  withName: Combine_finalVCF {
+  module = 'GATK/4.5.0-java-17'
+  cpus = 10
+  memory = '96 GB'
   }
 
   withName: VcftoBed {
   module = 'BCFtools/1.17-GCC-12.2.0:PLINK/1.9b_4.1-x86_64:TASSEL/5.2.59'
   cpus = 16
-  memory = '32 GB'
+  memory = '128 GB'
+  }
+
+  withName: VCFtoVCFbi {
+  module = 'BCFtools/1.17-GCC-12.2.0'
+  cpus = 16
+  memory = '128 GB'
+  }
+
+  withName: VCFtoHMP {
+  module = 'TASSEL/5.2.59'
+  cpus = 16
+  memory = '128 GB'
+  }
+
+  withName: VCFtoBEDBIMFAM {
+  module = 'PLINK/1.9b_4.1-x86_64'
+  cpus = 4
+  memory = '8 GB'
   }
 
   withName: Qualimap {
   container = '/nbt_main/share/singularity/qualimap:2.3--hdfd78af_0'
   cpus = 4
-  memory = '32 GB'
+  memory = '8 GB'
   }
 
-  withName: VCFtools_stats {
+
+  withName: MultiQC {
+  beforeScript = 'export PATH=$HOME/.local/bin/:$PATH'
+  cpus = 4
+  memory = '8 GB'
+  }
+
+  withName: VCFtoolsBefore_stats {
   module = 'VCFtools/0.1.16-GCC-11.3.0'
   cpus = 8
   memory = '16 GB'
   }
 
-  withName: BCFtools_stats {
+  withName: VCFtoolsAfter_stats {
+  module = 'VCFtools/0.1.16-GCC-11.3.0'
+  cpus = 8
+  memory = '16 GB'
+  }
+
+  withName: BCFtoolsBefore_stats {
   module = 'BCFtools/1.17-GCC-12.2.0'
   cpus = 8
   memory = '16 GB'
   }
 
-  withName: Histogram {
+  withName: BCFtoolsAfter_stats {
+  module = 'BCFtools/1.17-GCC-12.2.0'
+  cpus = 8
+  memory = '16 GB'
+  }
+
+  withName: HistogramBefore {
   module = 'Python/3.10.4-GCCcore-11.3.0'
   cpus = 8
   memory = '16 GB'
   }
+
+  withName: HistogramAfter {
+  module = 'Python/3.10.4-GCCcore-11.3.0'
+  cpus = 8
+  memory = '16 GB'
+  }
+
+}
+
+singularity {
+    enabled = true
+    autoMounts = true
 }
 
 ```
