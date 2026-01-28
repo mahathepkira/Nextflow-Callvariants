@@ -720,7 +720,23 @@ process Combine_finalVCF {
 ```
 ### MultiQC
 สำหรับขั้นตอนนี้เป็นขั้นตอนสำหรับนำข้อมมูลจาก FastQC และ Qualimap ของแต่ละตัวอย่างมาสรุปผลภาพรวมสำหรับการ visualization ด้วย MultiQC (verions 1.33)
+```bash
+process MultiQC {
 
+  publishDir "${outputPrefixPath(params, task)}"
+
+  input:
+  path input
+
+  output:
+  path "*"
+
+  script:
+  """
+  multiqc .
+  """
+}
+```
 ### Postprocess
 สำหรับเครื่องมือชีวสารสนเทศที่ใช้ในขั้นตอนการทำข้อมูลสถิติของ VCF ได้แก่ VCFTools (version 0.1.16) และ BCFtools (version 1.17) ในการสรุปข้อมูล allele frequency, missing data, Transition/Transversion (Ts/Tv) ratio และ สรุปข้อมูลจำนวน snps
 ```bash
