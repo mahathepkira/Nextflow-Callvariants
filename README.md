@@ -45,8 +45,8 @@ nextflow run main.nf -profile gb --input <path-input> \
 - `--input` = โฟลเดอร์ input (จำเป็น)
 - `--output` = โฟล์เดอร์ output (จำเป็น)
 #### QC Options
-- `--phred` =  ค่า phred score สำหรับขั้นตอน Pre-processing (ค่าเริ่มต้น:20 | 0-100)
-- `--minlen` = จำนวน reads ที่สั้นที่สุดที่ยอมรับได้สำหรับขั้นตอน Pre-processing (ค่าเริ่มต้น:50 | 5-300)
+- `--phred` =  ค่า phred score สำหรับขั้นตอน Quality Control (ค่าเริ่มต้น:20 | 0-100)
+- `--minlen` = จำนวน reads ที่สั้นที่สุดที่ยอมรับได้สำหรับขั้นตอน Quality Control (ค่าเริ่มต้น:50 | 5-300)
 - `--reads_type` = ชนิดของ reads [SE, PE|ค่าเริ่มต้น:PE]
 #### Alignment Options
 - `--reference` = reference ที่ต้องการทำ Alignment และ Variants Calling ["ref_fasta_ja", "ref_fasta_in", "ref_fasta_Mesculenta","ref_fasta_Zmays", "ref_fasta_Slycopersicum", "ref_fasta_Cannuum", "ref_fasta_ChineseLong", "ref_fasta_Gy14", "ref_fasta_IRGSP-1.0", "ref_fasta_ASM465v1", "ref_fasta_Cmaxima", "ref_fasta_Cmoschata","ref_fasta_Cpepo"] (จำเป็น)
@@ -74,7 +74,7 @@ Nextflow: version 24
    - GATK version 4.5.0
    - htsib version 1.19.1
 4. MultiQC
-   - MultiQC verion 
+   - MultiQC verion 1.33
 5. Postprocess
    - VCFtools version 0.1.16
    - BCFtools version 1.17
@@ -627,7 +627,7 @@ process Qualimap_visualize {
 }
 ```
 ### Callvariant
-เครื่องมือชีวสารสนเทศในการทำ HaplotypeCaller, GenomicsDBImport, GenotypeGVCFs และ การรวมไฟล์ ได้แก่ GATK (version 4.5.0) โดยการทำ HaplotypeCaller และใช้ GenomicsDBImport ในการสร้าง databases สำหรับการทำ GenotypeGVCFs โดยจะแบ่งช่วง reads ตาม `--window_size` ที่ผู้ใช้ต้องการ
+เครื่องมือชีวสารสนเทศในการทำ HaplotypeCaller, GenomicsDBImport, GenotypeGVCFs และ การรวมไฟล์ ได้แก่ GATK (version 4.5.0) โดยการทำ HaplotypeCaller และใช้ GenomicsDBImport ในการสร้าง databases สำหรับการทำ GenotypeGVCFs โดยจะแบ่งช่วง reads ตาม `--window_size` ที่ผู้ใช้ต้องการจากนั้นจึงทำการรวมไฟล์ VCF ที่ได้ไว้เป็นไฟล์เดียว
 ```bash
 process Call_GVCF {
 
@@ -718,6 +718,9 @@ process Combine_finalVCF {
  """
 }
 ```
+### MultiQC
+สำหรับขั้นตอนนี้เป็นขั้นตอนสำหรับนำข้อมมูลจาก FastQC และ Qualimap ของแต่ละตัวอย่างมาสรุปผลภาพรวมสำหรับการ visualization ด้วย MultiQC (verions 1.33)
+
 ### Postprocess
 สำหรับเครื่องมือชีวสารสนเทศที่ใช้ในขั้นตอนการทำข้อมูลสถิติของ VCF ได้แก่ VCFTools (version 0.1.16) และ BCFtools (version 1.17) ในการสรุปข้อมูล allele frequency, missing data, Transition/Transversion (Ts/Tv) ratio และ สรุปข้อมูลจำนวน snps
 ```bash
@@ -1018,9 +1021,9 @@ process VCFtoBEDBIMFAM {
 resultsCallvariants_Single-end
 ├── Alignment
 │   ├── AlignmentSingle
-│   |   └── {samples}.aln.sorted.bam
+│   │    └── {samples}.aln.sorted.bam
 │   ├── Base_recalibrator
-│   |   └── {samples}.recal.bam
+│   │   └── {samples}.recal.bam
 │   ├── Mark_duplicates
 │   │   ├── {samples}.aln.sorted.mrkDup.bam
 │   │   └── {samples}.dup_metrics.txt
@@ -1092,9 +1095,9 @@ resultsCallvariants_Single-end
 resultsCallvariants_Paired-end
 ├── Alignment
 │   ├── AlignmentPaired
-│   |   └── {samples}.aln.sorted.bam
+│   │   └── {samples}.aln.sorted.bam
 │   ├── Base_recalibrator
-│   |   └── {samples}.recal.bam
+│   │    └── {samples}.recal.bam
 │   ├── Mark_duplicates
 │   │   ├── {samples}.aln.sorted.mrkDup.bam
 │   │   └── {samples}.dup_metrics.txt
