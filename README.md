@@ -1003,69 +1003,157 @@ process VCFtoBEDBIMFAM {
 ## 5. Output
 ### ภาพรวม Output
 ```bash
-Callvariantout
-├── Alignment_bwa
-│    └── {samples}.aln.sorted.bam
-├── Base_recalibrator
-│    └── {samples}.recal.bam
-├── Call_GVCF
-│    ├── {samples}.snps.indels.g.vcf.gz
-│    └── {samples}.snps.indels.g.vcf.gz.tbi
-├── Combine_GVCF
-│    └── all.snps.indels.vcf.gz
-├── FastQC_after_trim
-│    ├── {samples}_R1_paired_fastqc.html
-│    ├── {samples}_R1_paired_fastqc.zip
-│    ├── {samples}_R2_paired_fastqc.html 
-│    └── {samples}_R2_paired_fastqc.zip
-├── FastQC_unpaired
-│    ├── {samples}_1_fastqc.html
-│    ├── {samples}_1_fastqc.zip
-│    ├── {samples}_2_fastqc.html 
-│    └── {samples}_2_fastqc.zip
-├── FastQC_after_trim
-│    ├── {samples}_R1_unpaired_fastqc.html
-│    ├── {samples}_R1_unpaired_fastqc.zip
-│    ├── {samples}_R2_unpaired_fastqc.html 
-│    └── {samples}_R2_unpaired_fastqc.zip
-├── FastQC_visualize
-│    └── fastqc_summary.csv
-├── Histogram_after
-│    ├── all.snps.indels_bi_allele_frequency.csv
-│    └── all.snps.indels_bi_lmiss_count.csv
-├── Histogram_before
-│    ├── all.snps.indels_allele_frequency.csv
-│    └── all.snps.indels_lmiss_count.csv
-├── Mark_duplicates
-│    ├── {samples}.aln.sorted.mrkDup.bam
-│    └── {samples}.dup_metrics.txt
-├── Qualimap_after
-│    └── {samples}.recal_stats
-├── Qualimap_before
-│    └── {samples}.aln.sorted_stats
-├── Qualimap_visualize
-│    └── qualimap_summary.csv
-├── Trimmmomatic
-│    ├── {samples}_R1_paired.fastq.gz
-│    ├── {samples}_R1_unpaired.fastq.gz
-│    ├── {samples}_R2_paired.fastq.gz  
-│    └── {samples}_R2_unpaired.fastq.gz
-├── VCFtoBed
-│    ├── all.snps.indels_bi.vcf.gz
-│    ├── allsample.bed
-│    ├── allsample.bim
-│    ├── allsample.fam 
-│    └── allsample.hmp.txt
-├── VCFtools_after
-│    ├── all.snps.indels_bi.frq
-│    ├── all.snps.indels_bi.lmiss
-│    ├── all.snps.indels_bi.summary  
-│    └── all.snps.indels_bi.TsTv.summary
-└── VCFtools_before
-     ├── all.snps.indels.frq
-     ├── all.snps.indels.lmiss
-     ├── all.snps.indels.summary       
-     └── all.snps.indels.TsTv.summary
+resultsCallvariants_Single-end
+├── Alignment
+│   ├── AlignmentSingle
+│   |   └── {samples}.aln.sorted.bam
+│   ├── Base_recalibrator
+│   |   └── {samples}.recal.bam
+│   ├── Mark_duplicates
+│   │   ├── {samples}.aln.sorted.mrkDup.bam
+│   │   └── {samples}.dup_metrics.txt
+│   ├── Qualimap
+│   │   └── {samples}.recal_stats
+│   └── Qualimap_visualize
+│       └── qualimap_summary.csv
+├── Callvariant
+│   ├── Call_GVCF
+│   │   ├── {samples}.snps.indels.g.vcf.gz
+│   │   └── {samples}.snps.indels.g.vcf.gz.tbi
+│   └── Combined_finalVCF
+│       ├── allsample.sorted.vcf.gz
+│       └── allsample.sorted.vcf.gz.tbi
+├── MultiQC
+│   ├── multiqc_fastqc_af
+│   │   ├── multiqc_data
+│   │   └── multiqc_report.html
+│   ├── multiqc_fastqc_bf
+│   │   ├── multiqc_data
+│   │   └── multiqc_report.html
+│   └── multiqc_qualimap
+│       ├── multiqc_data
+│       └── multiqc_report.html
+├── Postprocess
+│   ├── VCF_Stats
+│   │   ├── after_postprocess
+│   │   │   ├── VCFtools
+│   │   │   │   ├── Histogram
+│   │   │   │   │   ├── allsample_all.snps.indels_bi_allele_frequency.csv
+│   │   │   │   │   └── allsample_all.snps.indels_bi_lmiss_count.csv
+│   │   │   │   ├── allsample_all.snps.indels_bi.frq
+│   │   │   │   ├── allsample_all.snps.indels_bi.lmiss
+│   │   │   │   ├── allsample_all.snps.indels_bi.summary
+│   │   │   │   └── allsample_all.snps.indels_bi.TsTv.summary
+│   │   │   └── bcftools
+│   │   │       └── allsample_all.snps.indels_bi.vcf.gz.after.stat
+│   │   └── before_postprocess
+│   │   │   ├── VCFtools
+│   │   │   │   ├── Histogram
+│   │   │   │   │   ├── allsample.sorted_allele_frequency.csv
+│   │   │   │   │   └── allsample.sorted_lmiss_count.csv
+│   │   │   │   ├── allsample.sorted.frq
+│   │   │   │   ├── allsample.sorted.lmiss
+│   │   │   │   ├── aallsample.sorted.summary
+│   │   │   │   └── allsample.sorted.TsTv.summary
+│   │   │   └── bcftools
+│   │   │       └── allsample_all.snps.indels_bi.vcf.gz.after.stat
+│   ├── VCF_biallelic
+│   │   └── allsample_all.snps.indels_bi.vcf.gz
+│   └── VCF_conversions
+│       ├── allsample_all.bed
+│       ├── allsample_all.bim
+│       ├── allsample_all.fam
+│       └── allsample_all.hmp.txt
+└── QC
+    ├── FastqcForSingleAfter
+    │   ├── {samples}_trimmed_fastqc.html
+    │   └── {samples}_trimmed_fastqc.zip
+    ├── FastqcForSingleBefore
+    │   ├── {samples}_fastqc.html
+    │   └── {samples}_fastqc.zip
+    ├── FastqcForSingle_visualize
+    │   └── fastqc_summary.csv
+    └── Trimmmomatic_Single
+        └── {samples}_trimmed.fastq.gz
+```
+```bash
+resultsCallvariants_Paired-end
+├── Alignment
+│   ├── AlignmentPaired
+│   |   └── {samples}.aln.sorted.bam
+│   ├── Base_recalibrator
+│   |   └── {samples}.recal.bam
+│   ├── Mark_duplicates
+│   │   ├── {samples}.aln.sorted.mrkDup.bam
+│   │   └── {samples}.dup_metrics.txt
+│   ├── Qualimap
+│   │   └── {samples}.recal_stats
+│   └── Qualimap_visualize
+│       └── qualimap_summary.csv
+├── Callvariant
+│   ├── Call_GVCF
+│   │   ├── {samples}.snps.indels.g.vcf.gz
+│   │   └── {samples}.snps.indels.g.vcf.gz.tbi
+│   └── Combined_finalVCF
+│       ├── allsample.sorted.vcf.gz
+│       └── allsample.sorted.vcf.gz.tbi
+├── MultiQC
+│   ├── multiqc_fastqc_af
+│   │   ├── multiqc_data
+│   │   └── multiqc_report.html
+│   ├── multiqc_fastqc_bf
+│   │   ├── multiqc_data
+│   │   └── multiqc_report.html
+│   └── multiqc_qualimap
+│       ├── multiqc_data
+│       └── multiqc_report.html
+├── Postprocess
+│   ├── VCF_Stats
+│   │   ├── after_postprocess
+│   │   │   ├── VCFtools
+│   │   │   │   ├── Histogram
+│   │   │   │   │   ├── allsample_all.snps.indels_bi_allele_frequency.csv
+│   │   │   │   │   └── allsample_all.snps.indels_bi_lmiss_count.csv
+│   │   │   │   ├── allsample_all.snps.indels_bi.frq
+│   │   │   │   ├── allsample_all.snps.indels_bi.lmiss
+│   │   │   │   ├── allsample_all.snps.indels_bi.summary
+│   │   │   │   └── allsample_all.snps.indels_bi.TsTv.summary
+│   │   │   └── bcftools
+│   │   │       └── allsample_all.snps.indels_bi.vcf.gz.after.stat
+│   │   └── before_postprocess
+│   │   │   ├── VCFtools
+│   │   │   │   ├── Histogram
+│   │   │   │   │   ├── allsample.sorted_allele_frequency.csv
+│   │   │   │   │   └── allsample.sorted_lmiss_count.csv
+│   │   │   │   ├── allsample.sorted.frq
+│   │   │   │   ├── allsample.sorted.lmiss
+│   │   │   │   ├── aallsample.sorted.summary
+│   │   │   │   └── allsample.sorted.TsTv.summary
+│   │   │   └── bcftools
+│   │   │       └── allsample_all.snps.indels_bi.vcf.gz.after.stat
+│   ├── VCF_biallelic
+│   │   └── allsample_all.snps.indels_bi.vcf.gz
+│   └── VCF_conversions
+│       ├── allsample_all.bed
+│       ├── allsample_all.bim
+│       ├── allsample_all.fam
+│       └── allsample_all.hmp.txt
+└── QC
+    ├── FastqcForSingleAfter
+    │   ├── {samples}_R1_trimmed_fastqc.html
+    │   ├── {samples}_R1_trimmed_fastqc.zip
+    │   ├── {samples}_R2_trimmed_fastqc.html
+    │   └── {samples}_R2_trimmed_fastqc.zip
+    ├── FastqcForSingleBefore
+    │   ├── {samples}_R1_fastqc.html
+    │   ├── {samples}_R1_fastqc.zip
+    │   ├── {samples}_R2_fastqc.html
+    │   └── {samples}_R2_fastqc.zip
+    ├── FastqcForSingle_visualize
+    │   └── fastqc_summary.csv
+    └── Trimmmomatic_Paired
+        ├── {samples}_R1_trimmed.fastq.gz
+        └── {samples}_R2_trimmed.fastq.gz
 ```
 ### ตัวอย่างผลลัพธ์จาก {samples}.frq
 ```bash
