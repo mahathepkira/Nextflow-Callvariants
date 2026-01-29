@@ -17,7 +17,7 @@ Nextflow-Callvariants เป็น bioinformatics pipline ที่พัฒน�
 4. MultiQC
 5. Postprocess
 
-![ภาพ nextflow](Nextflow-Callvariants.drawio.png)
+![ภาพ nextflow](Nextflow-Callvariant.drawio.png)
 
 
 ## 2. การใช้งาน nextflow-Callvariants
